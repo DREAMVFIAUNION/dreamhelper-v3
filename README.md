@@ -46,11 +46,39 @@
 
 ---
 
-## 📺 演示 Demo
+## 📺 演示视频 Demo
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Laptop/3D/laptop_3d.png" width="120" />
+  <b>🎬 Bilibili 短剧演示</b>
 </p>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="https://www.bilibili.com/video/BV1JvwLzaEK3/">
+        <img src="https://img.youtube.com/vi/BV1JvwLzaEK3/0.jpg" width="280" alt="Bilibili Demo" />
+      </a>
+      <br/>
+      <sub>B站短剧演示</sub>
+    </td>
+  </tr>
+</table>
+
+<p align="center">
+  <b>🌍 YouTube 功能演示</b>
+</p>
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="https://www.youtube.com/watch?v=Yct5YYgZeJU&t=277s">
+        <img src="https://img.youtube.com/vi/Yct5YYgZeJU/0.jpg" width="280" alt="YouTube Demo" />
+      </a>
+      <br/>
+      <sub>YouTube 功能演示</sub>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -255,7 +283,7 @@ docker compose up -d
 │     PUT /password    │  修改密码                                        │
 │                                                                          │
 │  💬 /api/chat/*      │  对话系统                                        │
-│     POST completion  │  AI 对话                                         │
+│     POST completion   │  AI 对话                                         │
 │     GET/POST session │  会话管理                                         │
 │                                                                          │
 │  📚 /api/knowledge   │  知识库                                          │
