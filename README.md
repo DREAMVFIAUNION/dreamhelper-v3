@@ -49,17 +49,17 @@
 ## 📺 演示视频 Demo
 
 <p align="center">
-  <b>🎬 Bilibili 短剧演示</b>
+  <b>🎬 YouTube Shorts 演示</b>
 </p>
 
 <table align="center">
   <tr>
     <td align="center">
-      <a href="https://www.bilibili.com/video/BV1JvwLzaEK3/">
-        <img src="https://img.youtube.com/vi/BV1JvwLzaEK3/0.jpg" width="280" alt="Bilibili Demo" />
+      <a href="https://youtube.com/shorts/sBnOLkFhz-I?si=4K-JQQNdQtD3DQ2Z">
+        <img src="https://img.youtube.com/vi/sBnOLkFhz-I/0.jpg" width="280" alt="YouTube Shorts" />
       </a>
       <br/>
-      <sub>B站短剧演示</sub>
+      <sub>YouTube Shorts 演示</sub>
     </td>
   </tr>
 </table>
