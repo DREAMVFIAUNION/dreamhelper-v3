@@ -2,7 +2,7 @@ from src.main import APP_VERSION, app
 
 
 def test_service_entrypoint_metadata_and_routes():
-    assert APP_VERSION == "3.7.0"
+    assert APP_VERSION == "4.0.0-alpha"
     assert app.title == "DREAMVFIA Brain Core"
 
     paths = {route.path for route in app.routes}

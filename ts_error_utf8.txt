@@ -1,0 +1,10 @@
+﻿src/components/desktop/TerminalPanel.tsx(68,20): error TS2307: Cannot find module '@xterm/xterm/css/xterm.css' or its corresponding type declarations.
+tests/api/auth.test.ts(28,37): error TS2307: Cannot find module '@/app/api/auth/login/route' or its corresponding type declarations.
+tests/api/auth.test.ts(42,37): error TS2307: Cannot find module '@/app/api/auth/login/route' or its corresponding type declarations.
+tests/api/auth.test.ts(55,37): error TS2307: Cannot find module '@/app/api/auth/register/route' or its corresponding type declarations.
+tests/api/auth.test.ts(69,37): error TS2307: Cannot find module '@/app/api/auth/register/route' or its corresponding type declarations.
+tests/api/auth.test.ts(82,36): error TS2307: Cannot find module '@/app/api/auth/me/route' or its corresponding type declarations.
+tests/api/auth.test.ts(94,37): error TS2307: Cannot find module '@/app/api/auth/logout/route' or its corresponding type declarations.
+undefined
+D:\DREAMVFIA Assistant\dreamhelper-v3\apps\web-portal:
+鈥塃RR_PNPM_RECURSIVE_EXEC_FIRST_FAIL鈥?Command failed with exit code 2: tsc --noEmit

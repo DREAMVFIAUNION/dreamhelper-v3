@@ -127,7 +127,7 @@ class PlanExecuteAgent(BaseAgent):
             tool_input = step.get("tool_input")
 
             # 如果计划中指定了工具，直接执行
-            if tool and tool_input and registry.get_tool(tool):
+            if tool and tool_input and registry.get(tool):
                 yield AgentStep(
                     type=AgentStepType.TOOL_CALL,
                     content=f"步骤 {step_num}: {action}",
@@ -173,7 +173,7 @@ class PlanExecuteAgent(BaseAgent):
 
             # 检查 LLM 是否要求调用工具
             parsed_tool = self._parse_tool_call(exec_response)
-            if parsed_tool and registry.get_tool(parsed_tool["tool"]):
+            if parsed_tool and registry.get(parsed_tool["tool"]):
                 t_name = parsed_tool["tool"]
                 t_input = parsed_tool["input"]
 

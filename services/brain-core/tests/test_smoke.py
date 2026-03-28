@@ -36,7 +36,7 @@ def test_import_memory_dataclasses():
 
 def test_keyword_routing_code():
     from src.modules.agents.agent_router import route_by_keywords
-    assert route_by_keywords("写一个Python装饰器") == "code_agent"
+    assert route_by_keywords("写一个Python装饰器") == "coding_agent"
 
 
 def test_keyword_routing_writing():

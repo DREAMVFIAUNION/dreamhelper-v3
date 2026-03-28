@@ -65,6 +65,7 @@ export const TerminalPanel = memo(function TerminalPanel() {
       // 动态导入 xterm.js
       const { Terminal } = await import('@xterm/xterm')
       const { FitAddon } = await import('@xterm/addon-fit')
+      // @ts-expect-error css import
       await import('@xterm/xterm/css/xterm.css')
 
       // 清理旧实例

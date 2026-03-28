@@ -43,10 +43,7 @@ class ToolRegistry:
             return skill # BaseSkill duck-types with BaseTool close enough for truthiness check
         return None
 
-    @classmethod
-    def get_tool(cls, name: str) -> BaseTool | None:
-        """Alias for get() to support older agent calls"""
-        return cls.get(name)
+
 
     @classmethod
     def list_tools(cls) -> list[dict]:
