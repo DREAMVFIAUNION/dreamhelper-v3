@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { Bell, Search, LogOut, Settings, Home, Shield, Globe } from 'lucide-react'
+import { Bell, Search, Settings, Shield, Globe } from 'lucide-react'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -28,29 +27,14 @@ import {
 } from '@/components/ui/popover'
 
 export function TopNav() {
-  const { user, logout } = useAuth()
-  const router = useRouter()
+  const { user } = useAuth()
   const locale = useLocale()
   const tNav = useTranslations('topnav')
-  const tTier = useTranslations('tier')
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
 
-  const TIER_LABELS: Record<number, string> = {
-    0: tTier('free'),
-    1: tTier('vip'),
-    2: tTier('enterprise'),
-    9: tTier('admin'),
-    99: tTier('superAdmin'),
-  }
-
-  async function handleLogout() {
-    await logout()
-    router.push('/')
-  }
-
-  const tierLevel = user?.tierLevel ?? 0
-  const tierLabel = TIER_LABELS[tierLevel] ?? `Lv.${tierLevel}`
+  const isAdmin = (user?.tierLevel ?? 0) >= 9
+  const roleLabel = isAdmin ? 'Admin' : 'User'
   const initial = (user?.displayName ?? user?.username)?.[0]?.toUpperCase() ?? 'U'
 
   return (
@@ -118,7 +102,7 @@ export function TopNav() {
                     {user?.email}
                   </p>
                   <Badge variant="cyber" className="w-fit mt-1 text-[9px] px-1.5 py-0">
-                    {tierLabel}
+                    {roleLabel}
                   </Badge>
                 </div>
               </DropdownMenuLabel>
@@ -130,7 +114,7 @@ export function TopNav() {
                     {tNav('accountSettings')}
                   </Link>
                 </DropdownMenuItem>
-                {tierLevel >= 9 && (
+                {isAdmin && (
                   <DropdownMenuItem asChild className="cursor-pointer font-mono text-xs">
                     <Link href="/admin">
                       <Shield size={14} />
@@ -138,22 +122,7 @@ export function TopNav() {
                     </Link>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem asChild className="cursor-pointer font-mono text-xs">
-                  <Link href="/">
-                    <Home size={14} />
-                    {tNav('backHome')}
-                  </Link>
-                </DropdownMenuItem>
               </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => void handleLogout()}
-                className="cursor-pointer font-mono text-xs text-primary focus:text-primary"
-              >
-                <LogOut size={14} />
-                {tNav('logout')}
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (

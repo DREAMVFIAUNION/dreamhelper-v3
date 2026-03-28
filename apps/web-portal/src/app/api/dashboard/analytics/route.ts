@@ -1,23 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
+import { getLocalUserId } from '@/lib/local-user'
 
 // GET /api/dashboard/analytics — 用户个人使用统计
 export async function GET(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
-    const userId = payload.sub
+    const userId = getLocalUserId()
     const { searchParams } = new URL(req.url)
     const days = Math.min(30, Math.max(7, parseInt(searchParams.get('days') || '14')))
 

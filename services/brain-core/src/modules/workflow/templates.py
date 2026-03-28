@@ -38,7 +38,7 @@ def template_smart_customer_service() -> dict:
     trigger = _node("trigger_webhook", "客户消息", {"path": "/cs"}, 0, 200)
     llm = _node("llm", "意图分析", {
         "prompt": "分析用户意图，输出JSON: {\"intent\": \"faq|complaint|order|other\", \"summary\": \"...\"}\n\n用户消息: {{input}}",
-        "model": "MiniMax-M2.5-highspeed",
+        "model": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
         "temperature": 0.2,
     }, 300, 200)
     switch = _node("switch", "意图路由", {
@@ -51,7 +51,7 @@ def template_smart_customer_service() -> dict:
     }, 600, 200)
     faq_llm = _node("llm", "FAQ回答", {
         "prompt": "根据知识库回答用户FAQ问题: {{input}}",
-        "model": "MiniMax-M2.5-highspeed",
+        "model": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
     }, 900, 50)
     complaint_notify = _node("notification", "投诉通知", {
         "channel": "email",
@@ -126,7 +126,7 @@ def template_daily_report() -> dict:
     }, 300, 200)
     llm = _node("llm", "生成日报", {
         "prompt": "根据以下系统统计数据，生成一份简洁的每日运营日报（中文）:\n\n{{input}}\n\n包含: 今日活跃度、关键指标变化、建议。",
-        "model": "MiniMax-M2.5-highspeed",
+        "model": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
         "temperature": 0.6,
     }, 600, 200)
     notify = _node("notification", "发送日报", {
@@ -162,7 +162,7 @@ def template_batch_summary() -> dict:
     }, 250, 200)
     llm = _node("llm", "生成摘要", {
         "prompt": "请为以下文档生成100字以内的中文摘要:\n\n{{value}}",
-        "model": "MiniMax-M2.5-highspeed",
+        "model": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
         "temperature": 0.3,
     }, 500, 200)
     merge = _node("merge", "合并摘要", {
@@ -192,7 +192,7 @@ def template_model_comparison() -> dict:
     trigger = _node("trigger_manual", "输入问题", {}, 0, 200)
     llm_left = _node("llm", "MiniMax回答", {
         "prompt": "{{input}}",
-        "model": "MiniMax-M2.5-highspeed",
+        "model": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
     }, 300, 100)
     llm_right = _node("llm", "Qwen回答", {
         "prompt": "{{input}}",

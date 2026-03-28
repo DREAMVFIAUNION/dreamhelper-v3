@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth/AuthProvider'
 
 export function AdminTopNav() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -24,7 +24,7 @@ export function AdminTopNav() {
       {/* 左侧: 返回工作台 */}
       <div className="flex items-center gap-3">
         <Link
-          href="/overview"
+          href="/chat"
           className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-primary transition-colors"
         >
           <span>←</span> 返回工作台
@@ -63,12 +63,13 @@ export function AdminTopNav() {
               >
                 ⚙ 系统设置
               </Link>
-              <button
-                onClick={() => { setMenuOpen(false); void logout() }}
-                className="w-full text-left px-3 py-2 text-xs font-mono text-primary hover:bg-secondary"
+              <Link
+                href="/chat"
+                onClick={() => setMenuOpen(false)}
+                className="block px-3 py-2 text-xs font-mono text-primary hover:bg-secondary"
               >
-                ⏻ 退出系统
-              </button>
+                ← 返回聊天
+              </Link>
             </div>
           </div>
         )}

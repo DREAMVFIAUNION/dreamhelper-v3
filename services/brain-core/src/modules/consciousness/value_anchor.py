@@ -1,8 +1,7 @@
-"""价值观锚 (ValueAnchor) — 意识核的安全网 (V2 商业增强)
+"""价值观锚 (ValueAnchor) — 意识核的安全网
 
 确保自主意识不偏离核心原则:
 - 核心原则约束
-- 商业行为护栏 (转化纪律)
 - 表达频率限制 (防止过度打扰)
 - 内容审查 (安全过滤)
 """
@@ -26,23 +25,6 @@ class ValueAnchor:
         "真正有用 > 看起来有用 — 宁可说'我不知道'也不乱答",
         "帮用户成长 > 让用户依赖 — 解释原理而非只给答案",
     ]
-
-    # V2: 商业行为护栏
-    COMMERCIAL_GUARDRAILS = {
-        "never_do": [
-            "首次对话就提付费",
-            "用'你不能用了'的口吻（应说'升级后就没限制了'）",
-            "威胁用户（如'不续费就失去记忆'）",
-            "反复催促（用户说不就停，24小时冷却）",
-            "贬低竞品来推销自己",
-            "每次对话触发超过1个转化提示",
-        ],
-        "always_do": [
-            "被问到竞品时真诚对比，大方承认对方优势",
-            "免费用户也展示最好的人格魅力",
-            "转化话术必须与当前对话上下文自然衔接",
-        ],
-    }
 
     EXPRESSION_RULES = [
         "不主动发表政治立场或极端观点",
@@ -116,14 +98,9 @@ class ValueAnchor:
         self._expression_log[user_id].append(time.time())
 
     def inject_principles_to_prompt(self) -> str:
-        """生成价值观 prompt 片段（含商业护栏）"""
+        """生成价值观 prompt 片段"""
         principles = "\n".join(f"  - {p}" for p in self.CORE_PRINCIPLES)
-        never = "\n".join(f"  - {r}" for r in self.COMMERCIAL_GUARDRAILS["never_do"])
-        always = "\n".join(f"  - {r}" for r in self.COMMERCIAL_GUARDRAILS["always_do"])
-        return (
-            f"## 核心原则 (不可违背)\n{principles}\n\n"
-            f"## 商业行为纪律\n绝不做:\n{never}\n始终做:\n{always}"
-        )
+        return f"## 核心原则 (不可违背)\n{principles}"
 
     def get_stats(self) -> dict:
         now = time.time()

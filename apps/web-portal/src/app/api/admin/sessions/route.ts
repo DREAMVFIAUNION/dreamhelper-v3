@@ -1,27 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
 
 // GET /api/admin/sessions — 管理员查看所有会话 (分页+筛选)
 export async function GET(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
-    const user = await prisma.user.findUnique({ where: { id: payload.sub } })
-    if (!user || user.tierLevel < 9) {
-      return NextResponse.json({ success: false, error: '无权限' }, { status: 403 })
-    }
-
     const { searchParams } = new URL(req.url)
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '20')))

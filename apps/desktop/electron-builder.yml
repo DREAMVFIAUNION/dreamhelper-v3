@@ -1,0 +1,60 @@
+appId: com.dreamvfia.dreamhelper
+productName: 梦帮小助
+copyright: Copyright © 2025 DREAMVFIA UNION
+
+directories:
+  buildResources: resources
+  output: out
+
+files:
+  - dist-electron/**/*
+  - dist/renderer/**/*
+  - resources/**/*
+  - "!node_modules/**/*"
+  - node_modules/node-pty/**/*
+
+extraResources:
+  # 打包 brain-core Python 服务
+  - from: ../../services/brain-core
+    to: brain-core
+    filter:
+      - "**/*"
+      - "!**/__pycache__/**"
+      - "!**/venv/**"
+      - "!**/.pytest_cache/**"
+      - "!**/tests/**"
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: resources/icon.ico
+  artifactName: "${productName}-${version}-Setup.${ext}"
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: 梦帮小助
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  icon: resources/icon.icns
+  category: public.app-category.developer-tools
+  artifactName: "${productName}-${version}-${arch}.${ext}"
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+  icon: resources/icon.png
+  category: Development
+  artifactName: "${productName}-${version}.${ext}"
+
+publish:
+  provider: github
+  owner: DREAMVFIAUNION
+  repo: dreamhelper-v3

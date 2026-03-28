@@ -12,7 +12,6 @@
   - goal_system: 目标系统 — 自主生成目标
   - inner_voice: 内心独白 — 核心突破(主动思考→主动表达)
   - evolution_tracker: 进化追踪 — 6维成长量化+里程碑检测+进化叙事
-  - conversion_hooks: 转化钩子 — 有温度的商业转化
   - consistency: 人格一致性引擎 — 防止长对话性格漂移
   - prompts: 人格定义 + Prompt 模板集中管理 (PDNA 2.0)
   - user_registry: 用户注册表 — 让小助认识用户

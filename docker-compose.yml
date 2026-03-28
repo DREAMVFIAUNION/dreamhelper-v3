@@ -1,13 +1,18 @@
 # ═══════════════════════════════════════════════════════════
-# 梦帮小助 v3.0 · 本地开发环境
+# 梦帮小助 v4.0 · 本地开发环境 (极简)
+#
+# 默认只启动 PostgreSQL + Redis (pnpm start 自动管理)
+# 可选服务: 取消注释 milvus / elasticsearch / minio 按需启用
+# 应用服务: 由 pnpm start 直接运行 (不再容器化)
 # ═══════════════════════════════════════════════════════════
 
 services:
+  # ─── 核心基础设施 (pnpm start 自动启动) ─────────────────
   postgres:
     image: postgres:17-alpine
     container_name: dreamhelp-postgres
     ports:
-      - '127.0.0.1:5432:5432'
+      - '127.0.0.1:5433:5432'
     environment:
       POSTGRES_DB: dreamhelp
       POSTGRES_USER: dreamhelp
@@ -33,175 +38,61 @@ services:
       timeout: 5s
       retries: 5
 
-  milvus:
-    image: milvusdb/milvus:v2.4.0
-    container_name: dreamhelp-milvus
-    ports:
-      - '127.0.0.1:19530:19530'
-      - '127.0.0.1:9091:9091'
-    environment:
-      ETCD_USE_EMBED: 'true'
-      COMMON_STORAGETYPE: local
-    volumes:
-      - milvus_data:/var/lib/milvus
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9091/healthz']
-      interval: 10s
-      timeout: 10s
-      retries: 5
+  # ─── 可选服务 (取消注释按需启用) ────────────────────────
+  # milvus:
+  #   image: milvusdb/milvus:v2.4.0
+  #   container_name: dreamhelp-milvus
+  #   ports:
+  #     - '127.0.0.1:19530:19530'
+  #     - '127.0.0.1:9091:9091'
+  #   environment:
+  #     ETCD_USE_EMBED: 'true'
+  #     COMMON_STORAGETYPE: local
+  #   volumes:
+  #     - milvus_data:/var/lib/milvus
+  #   healthcheck:
+  #     test: ['CMD', 'curl', '-f', 'http://localhost:9091/healthz']
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
 
-  elasticsearch:
-    image: elasticsearch:8.15.0
-    container_name: dreamhelp-es
-    ports:
-      - '127.0.0.1:9200:9200'
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
-    volumes:
-      - es_data:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:9200/_cluster/health || exit 1']
-      interval: 10s
-      timeout: 10s
-      retries: 5
+  # elasticsearch:
+  #   image: elasticsearch:8.15.0
+  #   container_name: dreamhelp-es
+  #   ports:
+  #     - '127.0.0.1:9200:9200'
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+  #   volumes:
+  #     - es_data:/usr/share/elasticsearch/data
+  #   healthcheck:
+  #     test: ['CMD-SHELL', 'curl -f http://localhost:9200/_cluster/health || exit 1']
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
 
-  minio:
-    image: minio/minio:latest
-    container_name: dreamhelp-minio
-    ports:
-      - '127.0.0.1:9000:9000'
-      - '127.0.0.1:9001:9001'
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
-  # ─── 应用服务 ───────────────────────────────────────────
-  web-portal:
-    build:
-      context: .
-      dockerfile: apps/web-portal/Dockerfile
-    container_name: dreamhelp-web
-    ports:
-      - '3000:3000'
-    environment:
-      DATABASE_URL: postgresql://dreamhelp:dev_password@postgres:5432/dreamhelp
-      JWT_SECRET: dev_jwt_secret_change_me
-      BRAIN_CORE_URL: http://brain-core:8000
-      NODE_ENV: production
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-
-  gateway:
-    build:
-      context: .
-      dockerfile: services/gateway/Dockerfile
-    container_name: dreamhelp-gateway
-    ports:
-      - '3001:3001'
-    environment:
-      PORT: '3001'
-      DATABASE_URL: postgresql://dreamhelp:dev_password@postgres:5432/dreamhelp
-      REDIS_URL: redis://redis:6379
-      BRAIN_CORE_URL: http://brain-core:8000
-      JWT_SECRET: dev_jwt_secret_change_me
-      ALLOWED_ORIGINS: http://localhost:3000
-      NODE_ENV: production
-      # 多渠道配置 (Phase 6)
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
-      WECHAT_APP_ID: ${WECHAT_APP_ID:-}
-      WECHAT_APP_SECRET: ${WECHAT_APP_SECRET:-}
-      WECHAT_TOKEN: ${WECHAT_TOKEN:-dreamhelp_wechat_token}
-      WECOM_CORP_ID: ${WECOM_CORP_ID:-}
-      WECOM_SECRET: ${WECOM_SECRET:-}
-      WECOM_AGENT_ID: ${WECOM_AGENT_ID:-}
-      WECOM_TOKEN: ${WECOM_TOKEN:-dreamhelp_wecom_token}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
-
-  brain-core:
-    build:
-      context: services/brain-core
-      dockerfile: Dockerfile
-    container_name: dreamhelp-brain
-    ports:
-      - '8000:8000'
-    environment:
-      ENV: production
-      DATABASE_URL: postgresql://dreamhelp:dev_password@postgres:5432/dreamhelp
-      REDIS_URL: redis://redis:6379
-      MILVUS_HOST: milvus
-      MILVUS_PORT: '19530'
-      ES_URL: http://elasticsearch:9200
-      # ── LLM API Keys ──
-      MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
-      MINIMAX_GROUP_ID: ${MINIMAX_GROUP_ID:-}
-      QWEN_API_KEY: ${QWEN_API_KEY:-}
-      GLM_API_KEY: ${GLM_API_KEY:-}
-      NVIDIA_API_KEY: ${NVIDIA_API_KEY:-}
-      KIMI_API_KEY: ${KIMI_API_KEY:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
-      # ── 仿生大脑 ──
-      DUAL_BRAIN_ENABLED: 'true'
-      THALAMUS_ENABLED: 'true'
-      BRAINSTEM_ENABLED: 'true'
-      CEREBELLUM_ENABLED: 'true'
-      # ── 意识核 (Sprint A) ──
-      CONSCIOUSNESS_ENABLED: ${CONSCIOUSNESS_ENABLED:-true}
-      CONSCIOUSNESS_MODEL: ${CONSCIOUSNESS_MODEL:-nvidia/nemotron-3-nano-30b-a3b}
-      CONSCIOUSNESS_WORLD_MODEL: ${CONSCIOUSNESS_WORLD_MODEL:-nvidia/cosmos-reason2-8b}
-      CONSCIOUSNESS_THINK_INTERVAL: ${CONSCIOUSNESS_THINK_INTERVAL:-900}
-      # ── 语义记忆 (Sprint B) ──
-      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-minimax}
-      EMBEDDING_DIM: ${EMBEDDING_DIM:-1536}
-      # ── GitNexus 代码智能 (Sprint C) ──
-      GITNEXUS_ENABLED: ${GITNEXUS_ENABLED:-false}
-      MCP_GITNEXUS: ${MCP_GITNEXUS:-false}
-      GITNEXUS_DEFAULT_REPO: ${GITNEXUS_DEFAULT_REPO:-}
-      # ── RAG ──
-      RAG_MODE: ${RAG_MODE:-memory}
-      # ── 安全 ──
-      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_me}
-      API_AUTH_TOKEN: ${API_AUTH_TOKEN:-}
-      # ── 监控 ──
-      SENTRY_DSN: ${SENTRY_DSN:-}
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    restart: unless-stopped
-
-  # n8n 已弃用 — 工作流功能已原生实现在 brain-core 中
+  # minio:
+  #   image: minio/minio:latest
+  #   container_name: dreamhelp-minio
+  #   ports:
+  #     - '127.0.0.1:9000:9000'
+  #     - '127.0.0.1:9001:9001'
+  #   command: server /data --console-address ":9001"
+  #   environment:
+  #     MINIO_ROOT_USER: minioadmin
+  #     MINIO_ROOT_PASSWORD: minioadmin
+  #   volumes:
+  #     - minio_data:/data
+  #   healthcheck:
+  #     test: ['CMD', 'mc', 'ready', 'local']
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
 
 volumes:
   pg_data:
-  milvus_data:
-  es_data:
-  minio_data:
-  # n8n_data: (已弃用)
+  # milvus_data:
+  # es_data:
+  # minio_data:

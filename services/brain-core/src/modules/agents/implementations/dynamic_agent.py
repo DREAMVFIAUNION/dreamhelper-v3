@@ -23,7 +23,7 @@ class DynamicAgent(BaseAgent):
         description: str = "",
         system_prompt: str = "",
         model_provider: str = "minimax",
-        model_name: str = "MiniMax-M2.5-highspeed",
+        model_name: str = "nvidia/llama-3.1-nemotron-ultra-253b-v1",
         temperature: float = 0.7,
         max_tokens: int = 4096,
         tools: list[str] | None = None,

@@ -279,9 +279,18 @@ class MCPClientManager:
 
     @classmethod
     async def reconnect(cls, name: str):
-        """重连指定服务器"""
+        """重连指定服务器（带超时保护）"""
         conn = cls._connections.get(name)
         if not conn:
             return
         await cls._cleanup_conn(conn)
-        await cls._connect(name)
+        try:
+            await asyncio.wait_for(cls._connect(name), timeout=30.0)
+        except asyncio.TimeoutError:
+            conn = cls._connections.get(name)
+            if conn:
+                conn.error = f"重连超时 (30s)"
+                conn.connected = False
+            logger.warning("MCP [%s] 重连超时", name)
+        except Exception as e:
+            logger.warning("MCP [%s] 重连失败: %s", name, e)

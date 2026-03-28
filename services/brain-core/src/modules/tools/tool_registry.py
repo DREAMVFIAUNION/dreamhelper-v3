@@ -33,15 +33,55 @@ class ToolRegistry:
 
     @classmethod
     def get(cls, name: str) -> BaseTool | None:
-        return cls._tools.get(name)
+        tool = cls._tools.get(name)
+        if tool:
+            return tool
+        # Fallback pseudo-tool logic for skill validation
+        from .skills.skill_engine import SkillEngine
+        skill = SkillEngine.get(name)
+        if skill:
+            return skill # BaseSkill duck-types with BaseTool close enough for truthiness check
+        return None
+
+    @classmethod
+    def get_tool(cls, name: str) -> BaseTool | None:
+        """Alias for get() to support older agent calls"""
+        return cls.get(name)
 
     @classmethod
     def list_tools(cls) -> list[dict]:
         return [t.to_schema() for t in cls._tools.values()]
 
     @classmethod
+    async def get_dynamic_tool_schemas(cls, query: str = "", top_k: int = 5) -> list[dict]:
+        """动态合成本次对话可用的工具集，包含静态的基础 Tool 和按语义召回的 Top-K Skills。"""
+        schemas = cls.list_tools()
+        if not query:
+            return schemas
+            
+        from .skills.skill_engine import SkillEngine
+        try:
+            skills = await SkillEngine.search_semantic(query, top_k)
+            for s in skills:
+                schemas.append(s.to_schema())
+        except Exception:
+            pass
+            
+        return schemas
+
+    @classmethod
     async def execute(cls, name: str, **kwargs: Any) -> str:
         tool = cls._tools.get(name)
-        if not tool:
-            raise ValueError(f"Tool '{name}' not found")
-        return await tool.execute(**kwargs)
+        if tool:
+            return await tool.execute(**kwargs)
+            
+        # Fallback to dynamic skill execution
+        from .skills.skill_engine import SkillEngine
+        skill = SkillEngine.get(name)
+        if skill:
+            result = await SkillEngine.execute(name, **kwargs)
+            if result.get("success"):
+                return str(result.get("result"))
+            return f"Error executing skill: {result.get('error', 'Unknown error')}"
+
+        raise ValueError(f"Tool '{name}' not found")

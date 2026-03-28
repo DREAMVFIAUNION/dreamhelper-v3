@@ -20,7 +20,6 @@ class KnownUser:
     display_name: str = ""
     username: str = ""
     email: str = ""
-    tier_level: int = 0
     last_active: float = 0.0
     last_chat_topic: str = ""
     interaction_count: int = 0
@@ -99,8 +98,7 @@ class UserRegistry:
                 u.mood_estimate = mood
 
     def on_user_profile_sync(self, user_id: str, username: str = "",
-                              display_name: str = "", email: str = "",
-                              tier_level: int = 0):
+                              display_name: str = "", email: str = ""):
         """从 DB 同步用户完整资料 — 每次对话请求时调用"""
         if not user_id or user_id == "anonymous":
             return
@@ -113,8 +111,6 @@ class UserRegistry:
         if email:
             # P2-#9: 脱敏存储邮箱
             u.email = self._mask_email(email)
-        if tier_level:
-            u.tier_level = tier_level
         logger.debug("[UserRegistry] Profile synced: %s (%s / %s)", user_id[:8], display_name, username)
 
     def get_user(self, user_id: str) -> Optional[KnownUser]:

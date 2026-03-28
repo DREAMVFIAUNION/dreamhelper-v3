@@ -1,25 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
+import { getLocalUserId } from '@/lib/local-user'
 
 // ═══ GET /api/chat/sessions — 获取用户的会话列表 ═══
 
 export async function GET(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
+    const userId = getLocalUserId()
 
     const sessions = await prisma.chatSession.findMany({
-      where: { userId: payload.sub, status: 'active' },
+      where: { userId, status: 'active' },
       select: {
         id: true,
         title: true,
@@ -54,17 +44,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
+    const userId = getLocalUserId()
 
     let body: { title?: string; agentId?: string } = {}
     try {
@@ -75,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     const session = await prisma.chatSession.create({
       data: {
-        user: { connect: { id: payload.sub } },
+        user: { connect: { id: userId } },
         ...(body.agentId ? { agent: { connect: { id: body.agentId } } } : {}),
         title: body.title || null,
       },

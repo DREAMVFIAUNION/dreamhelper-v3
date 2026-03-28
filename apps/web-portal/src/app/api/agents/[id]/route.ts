@@ -1,22 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@dreamhelp/auth';
 import { brainCoreFetch } from '@/lib/brain-core-url';
 
-async function requireAuth(req: NextRequest): Promise<string | NextResponse> {
-  const token = req.cookies.get('token')?.value
-  if (!token) return NextResponse.json({ error: '未登录' }, { status: 401 })
-  try {
-    const payload = await verifyToken(token)
-    return payload.sub
-  } catch {
-    return NextResponse.json({ error: 'Token 无效' }, { status: 401 })
-  }
-}
-
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAuth(req)
-  if (auth instanceof NextResponse) return auth
-
   const { id } = await params;
   const resp = await brainCoreFetch(`/api/v1/agents/${id}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -26,9 +11,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAuth(req)
-  if (auth instanceof NextResponse) return auth
-
   const { id } = await params;
   const body = await req.json();
   const resp = await brainCoreFetch(`/api/v1/agents/${id}`, {
@@ -41,9 +23,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireAuth(req)
-  if (auth instanceof NextResponse) return auth
-
   const { id } = await params;
   const resp = await brainCoreFetch(`/api/v1/agents/${id}`, {
     method: 'DELETE',

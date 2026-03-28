@@ -1,32 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
-
-// ═══ 认证 helper ═══
-
-async function getUser(req: NextRequest): Promise<{ sub: string } | null> {
-  const tokenStr = req.cookies.get('token')?.value
-  if (!tokenStr) return null
-  try {
-    return await verifyToken(tokenStr)
-  } catch {
-    return null
-  }
-}
+import { getLocalUserId } from '@/lib/local-user'
 
 // ═══ GET /api/chat/sessions/[id] — 获取单个会话 (含消息) ═══
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await getUser(req)
-    if (!user) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
+    const userId = getLocalUserId()
     const { id } = await params
 
     const session = await prisma.chatSession.findFirst({
-      where: { id, userId: user.sub, status: 'active' },
+      where: { id, userId, status: 'active' },
       select: {
         id: true,
         title: true,
@@ -75,11 +59,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await getUser(req)
-    if (!user) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
+    const userId = getLocalUserId()
     const { id } = await params
 
     let body: { title?: string }
@@ -91,7 +71,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     // 确保会话属于当前用户
     const existing = await prisma.chatSession.findFirst({
-      where: { id, userId: user.sub },
+      where: { id, userId },
       select: { id: true },
     })
 
@@ -116,15 +96,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await getUser(req)
-    if (!user) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
+    const userId = getLocalUserId()
     const { id } = await params
 
     const existing = await prisma.chatSession.findFirst({
-      where: { id, userId: user.sub },
+      where: { id, userId },
       select: { id: true },
     })
 

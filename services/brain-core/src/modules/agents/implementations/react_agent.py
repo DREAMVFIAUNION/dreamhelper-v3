@@ -36,8 +36,8 @@ REACT_SYSTEM_PROMPT = """你是梦帮小助，一个强大的 AI 助手。你拥
 5. final_answer 中回答要友好专业，可以使用 emoji"""
 
 
-def _build_tools_description() -> str:
-    tools = ToolRegistry.list_tools()
+async def _build_tools_description(user_input: str) -> str:
+    tools = await ToolRegistry.get_dynamic_tool_schemas(query=user_input)
     if not tools:
         return "（当前没有可用工具）"
     lines = []
@@ -51,8 +51,8 @@ def _build_tools_description() -> str:
     return "\n".join(lines)
 
 
-def _build_history_messages(user_input: str, context: AgentContext) -> list[dict]:
-    tools_desc = _build_tools_description()
+async def _build_history_messages(user_input: str, context: AgentContext) -> list[dict]:
+    tools_desc = await _build_tools_description(user_input)
     system = REACT_SYSTEM_PROMPT.format(tools_description=tools_desc)
 
     messages = [{"role": "system", "content": system}]
@@ -155,12 +155,12 @@ class ReActAgent(BaseAgent):
 
     async def think(self, user_input: str, context: AgentContext) -> AgentStep:
         """调用 LLM 进行推理，决定下一步行动"""
-        messages = _build_history_messages(user_input, context)
+        messages = await _build_history_messages(user_input, context)
 
         client = get_llm_client()
         request = LLMRequest(
             messages=messages,
-            model=context.model_name or "MiniMax-M2.5-highspeed",
+            model=context.model_name or "nvidia/llama-3.1-nemotron-ultra-253b-v1",
             temperature=context.temperature or 0.7,
             max_tokens=4096,
             stream=False,
@@ -257,7 +257,7 @@ class ReActAgent(BaseAgent):
 
     async def synthesize(self, user_input: str, context: AgentContext) -> AgentStep:
         """综合所有观察结果生成最终回答"""
-        messages = _build_history_messages(user_input, context)
+        messages = await _build_history_messages(user_input, context)
         messages.append({
             "role": "user",
             "content": "请根据以上工具调用结果，给出最终完整回答。使用 {\"thought\": \"...\", \"final_answer\": \"...\"} 格式。"
@@ -266,7 +266,7 @@ class ReActAgent(BaseAgent):
         client = get_llm_client()
         request = LLMRequest(
             messages=messages,
-            model=context.model_name or "MiniMax-M2.5-highspeed",
+            model=context.model_name or "nvidia/llama-3.1-nemotron-ultra-253b-v1",
             temperature=context.temperature or 0.7,
             max_tokens=4096,
             stream=False,

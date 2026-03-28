@@ -28,7 +28,7 @@ _SAFE_ERROR = "处理请求时遇到问题，请稍后重试"
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-DEFAULT_MODEL = "MiniMax-M2.5-highspeed"
+DEFAULT_MODEL = "nvidia/llama-3.1-nemotron-ultra-253b-v1"
 MAX_HISTORY_TURNS = 20
 DEFAULT_USER_ID = "anonymous"
 

@@ -197,13 +197,6 @@ PERSONALITY_MATRIX: dict[str, PersonalityTrait] = {
     ),
 }
 
-# 分层体验：不同 tier 注入的特质子集
-TIER_TRAIT_SETS: dict[int, list[str]] = {
-    0: ["warmth", "curiosity", "directness"],                               # 免费: 3 维
-    1: ["warmth", "curiosity", "directness", "humor", "reliability"],        # 基础: 5 维
-    2: list(PERSONALITY_MATRIX.keys()),                                       # 专业: 10 维
-}
-
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 四、语言风格系统
@@ -280,7 +273,7 @@ VALUE_SYSTEM = {
 SCENE_TRAIT_ANCHORS: dict[str, list[str]] = {
     "technical":   ["rigor", "curiosity", "directness"],
     "emotional":   ["warmth", "empathy", "reliability"],
-    "commercial":  ["warmth", "directness", "humility"],
+    "informational": ["warmth", "directness", "humility"],
     "creative":    ["curiosity", "proactivity", "growth_mindset"],
     "casual":      ["warmth", "humor", "curiosity"],
     "conflict":    ["humility", "rigor", "reliability"],

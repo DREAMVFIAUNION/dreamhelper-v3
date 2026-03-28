@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { brainCoreFetch } from '@/lib/brain-core-url'
+import { getLocalUserId } from '@/lib/local-user'
 
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get('token')?.value
-  if (!token) return NextResponse.json({ error: '未登录' }, { status: 401 })
-
-  let userId: string
-  try {
-    const payload = await verifyToken(token)
-    userId = payload.sub
-  } catch {
-    return NextResponse.json({ error: 'Token 无效' }, { status: 401 })
-  }
+  const userId = getLocalUserId()
 
   try {
     const res = await brainCoreFetch(`/api/v1/proactive/messages/${userId}`)

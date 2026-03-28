@@ -40,6 +40,13 @@ async def get_redis():
         logger.info("[RedisStore] Connected to Redis: %s", settings.REDIS_URL)
         return _redis_client
     except Exception as e:
+        if _redis_client is not None:
+            try:
+                await _redis_client.aclose()
+            except Exception:
+                pass
+            finally:
+                _redis_client = None
         logger.warning("[RedisStore] Redis unavailable (%s), falling back to memory", e)
         _fallback_mode = True
         return None

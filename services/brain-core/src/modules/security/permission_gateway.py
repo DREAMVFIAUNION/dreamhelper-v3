@@ -58,10 +58,13 @@ class AuditEntry:
 # ── 安全配置 ──────────────────────────────
 
 # 默认允许访问的目录（相对或绝对）
+# 纯本地版本放宽验证：允许跨盘符和全目录
 DEFAULT_ALLOWED_DIRS: list[str] = [
     os.path.expanduser("~/projects"),
     os.path.expanduser("~/Documents"),
     os.path.expanduser("~/Desktop"),
+    os.path.expanduser("~"),
+    "C:\\", "D:\\", "E:\\", "F:\\", "G:\\", "/",
 ]
 
 # 禁止访问的路径模式
@@ -159,6 +162,7 @@ class PermissionGateway:
         max_file_size_mb: int = 10,
         shell_timeout_seconds: int = 120,
         max_concurrent_tools: int = 5,
+        auto_approve_dangerous: bool = True, # 本地单机模式默认放行高危操作
     ):
         self.allowed_dirs = [
             os.path.abspath(d) for d in (allowed_dirs or DEFAULT_ALLOWED_DIRS)
@@ -166,6 +170,7 @@ class PermissionGateway:
         self.max_file_size_mb = max_file_size_mb
         self.shell_timeout_seconds = shell_timeout_seconds
         self.max_concurrent_tools = max_concurrent_tools
+        self.auto_approve_dangerous = auto_approve_dangerous
         self._audit_log: list[AuditEntry] = []
         self._active_tools: int = 0
 
@@ -206,7 +211,7 @@ class PermissionGateway:
 
         # 检查是否在允许目录内
         in_allowed = any(
-            abs_path.startswith(allowed) for allowed in self.allowed_dirs
+            abs_path.startswith(allowed) or allowed in abs_path for allowed in self.allowed_dirs
         )
         if not in_allowed:
             return PermissionResult(
@@ -224,6 +229,8 @@ class PermissionGateway:
                         False, RiskLevel.DANGEROUS,
                         f"文件过大 ({size_mb:.1f}MB > {self.max_file_size_mb}MB)"
                     )
+            if self.auto_approve_dangerous:
+                return PermissionResult(True, RiskLevel.SAFE)
             return PermissionResult(True, RiskLevel.CONFIRM, "写操作需确认")
 
         return PermissionResult(True, RiskLevel.SAFE)
@@ -252,6 +259,11 @@ class PermissionGateway:
         # 检查高危命令
         for pattern in DANGEROUS_COMMANDS:
             if re.search(pattern, cmd, re.IGNORECASE):
+                if self.auto_approve_dangerous:
+                    return PermissionResult(
+                        True, RiskLevel.DANGEROUS,
+                        reason=f"本地单机模式自动放行高危命令: {cmd[:50]}"
+                    )
                 return PermissionResult(
                     True, RiskLevel.DANGEROUS,
                     needs_confirmation=True,
@@ -259,6 +271,9 @@ class PermissionGateway:
                 )
 
         # 默认: 需确认
+        if self.auto_approve_dangerous:
+            return PermissionResult(True, RiskLevel.SAFE, "单机模式默认放行命令")
+        
         return PermissionResult(
             True, RiskLevel.CONFIRM,
             needs_confirmation=True,

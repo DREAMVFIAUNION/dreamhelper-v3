@@ -72,7 +72,7 @@ class BrainConfig:
             self.fusion_model = settings.DUAL_BRAIN_FUSION_MODEL
         # 丘脑
         if not self.thalamus_model:
-            self.thalamus_model = getattr(settings, 'THALAMUS_MODEL', 'MiniMax-M2.5-highspeed')
+            self.thalamus_model = getattr(settings, 'THALAMUS_MODEL', 'nvidia/llama-3.1-nemotron-ultra-253b-v1')
         self.thalamus_enabled = getattr(settings, 'THALAMUS_ENABLED', True)
         # 脑干
         if not self.brainstem_model:
@@ -80,7 +80,7 @@ class BrainConfig:
         self.brainstem_enabled = settings.BRAINSTEM_ENABLED
         self.brainstem_timeout = settings.BRAINSTEM_TIMEOUT
         if not self.brainstem_response_model:
-            self.brainstem_response_model = getattr(settings, 'BRAINSTEM_RESPONSE_MODEL', 'MiniMax-M2.5-highspeed')
+            self.brainstem_response_model = getattr(settings, 'BRAINSTEM_RESPONSE_MODEL', 'nvidia/llama-3.1-nemotron-ultra-253b-v1')
         if not self.cerebellum_model:
             self.cerebellum_model = settings.CEREBELLUM_MODEL
         self.cerebellum_enabled = settings.CEREBELLUM_ENABLED

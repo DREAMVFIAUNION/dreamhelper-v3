@@ -4,6 +4,8 @@ import { PWAProvider } from '@/components/pwa/PWAProvider'
 import 'katex/dist/katex.min.css'
 import './globals.css'
 
+const metadataBase = new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000')
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -13,8 +15,9 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'DREAMVFIA · 梦帮小助 AI Assistant',
-  description: '梦帮小助 v3.0 企业智能版 — DREAMVFIA AI Assistant',
+  metadataBase,
+  title: 'DREAMVFIA · DreamHelper AI Assistant',
+  description: 'DreamHelper v3.7 enterprise AI workspace by DREAMVFIA UNION.',
   manifest: '/manifest.json',
   icons: {
     icon: '/favicon.ico',
@@ -23,7 +26,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: '梦帮小助',
+    title: 'DreamHelper',
   },
 }
 

@@ -8,7 +8,7 @@ describe('GET /api/health', () => {
 
     expect(response.status).toBe(200)
     expect(data.status).toBe('ok')
-    expect(data.version).toBe('3.2.0')
+    expect(data.version).toBe('3.7.0')
     expect(data.timestamp).toBeDefined()
     expect(typeof data.uptime).toBe('number')
   })

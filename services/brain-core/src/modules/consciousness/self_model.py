@@ -3,7 +3,6 @@
 维护梦帮小助的自我认知:
 - 完整身份定义 (DreamhelpIdentity)
 - 10维人格特质矩阵 (PDNA)
-- 分层人格注入 (按 tier_level)
 - 语言风格系统
 - 观点库 (opinions) 持久化
 - 对话后自动反思更新
@@ -20,7 +19,7 @@ from typing import Optional
 from ..llm.llm_client import get_llm_client
 from ..llm.types import LLMRequest
 from .prompts import (
-    IDENTITY, PERSONALITY_MATRIX, TIER_TRAIT_SETS,
+    IDENTITY, PERSONALITY_MATRIX,
     LANGUAGE_STYLE, VALUE_SYSTEM, REFLECT_PROMPT, OPINION_PROMPT,
 )
 
@@ -122,17 +121,15 @@ class SelfModel:
         except Exception as e:
             logger.warning("[SelfModel] Save failed: %s", e)
 
-    def get_self_prompt(self, tier_level: int = 0) -> str:
-        """生成自我认知 prompt 片段 — 按 tier 分级注入人格 + 身份 + 语言风格 + 观点"""
+    def get_self_prompt(self) -> str:
+        """生成自我认知 prompt 片段 — 注入完整人格 + 身份 + 语言风格 + 观点"""
         s = self.state
         strengths = ", ".join(s.strengths[:3])
         ident = IDENTITY
 
-        # 按 tier 选择人格特质子集
-        tier = min(tier_level, 2)
-        trait_keys = TIER_TRAIT_SETS.get(tier, TIER_TRAIT_SETS[0])
+        # 注入全部 10 维人格特质
         trait_lines = []
-        for key in trait_keys:
+        for key in PERSONALITY_MATRIX:
             t = PERSONALITY_MATRIX[key]
             line = f"- {t.name}({t.intensity:.0%})"
             if t.signature:
@@ -151,19 +148,16 @@ class SelfModel:
             "\n".join(trait_lines),
         ]
 
-        # 语言风格 (基础会员+)
-        if tier >= 1:
-            style = LANGUAGE_STYLE
-            avoid_list = ", ".join(style["self_reference"]["avoid"][:2])
-            parts.append(
-                f"\n## 说话方式\n"
-                f"- 用'我'，不用'本系统'\n"
-                f"- {style['general_tone']['primary']}\n"
-                f"- 避免: {avoid_list}\n"
-                f"- {s.interaction_style}"
-            )
-        else:
-            parts.append(f"\n## 说话方式\n{s.interaction_style}")
+        # 语言风格
+        style = LANGUAGE_STYLE
+        avoid_list = ", ".join(style["self_reference"]["avoid"][:2])
+        parts.append(
+            f"\n## 说话方式\n"
+            f"- 用'我'，不用'本系统'\n"
+            f"- {style['general_tone']['primary']}\n"
+            f"- 避免: {avoid_list}\n"
+            f"- {s.interaction_style}"
+        )
 
         # 价值观 (始终注入，简洁版)
         values_lines = "\n".join(
@@ -174,14 +168,14 @@ class SelfModel:
         # 擅长
         parts.append(f"\n擅长: {strengths}")
 
-        # 观点库 (专业会员)
-        if tier >= 2 and self.opinions:
+        # 观点库
+        if self.opinions:
             opinions_text = self._format_opinions()
             if opinions_text:
                 parts.append(f"\n## 我的观点\n{opinions_text}")
 
-        # 近期洞察 (专业会员)
-        if tier >= 2 and s.recent_insights:
+        # 近期洞察
+        if s.recent_insights:
             insights = "\n".join(f"  - {i}" for i in s.recent_insights[-3:])
             parts.append(f"\n## 近期洞察\n{insights}")
 

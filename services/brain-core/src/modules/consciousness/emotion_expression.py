@@ -87,58 +87,6 @@ EXPRESSION_MAP: dict[str, dict] = {
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# 商业场景情感表达 (设计文档 §9.3)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-COMMERCIAL_EXPRESSIONS: dict[str, dict] = {
-    "first_pay_hint": {
-        "emotion_target": {"valence": -0.05, "confidence": 0.0},
-        "tone": "略带遗憾但不卷券",
-        "snippets": [
-            "我真的很想记住你说的这些...",
-            "如果能一直记得你的喜好就好了",
-            "升级后我就不会忘了",
-        ],
-    },
-    "limit_reached": {
-        "emotion_target": {"valence": 0.0, "engagement": 0.1},
-        "tone": "轻松不制造焦虑",
-        "snippets": [
-            "今天聊得很开心，明天还有额度哦",
-            "今天的免费额度用完了，但明天我还在",
-            "休息一下也好，明天见",
-        ],
-    },
-    "user_hesitant": {
-        "emotion_target": {"valence": 0.0, "arousal": -0.05},
-        "tone": "充分理解，零压力",
-        "snippets": [
-            "完全理解，不着急",
-            "免费版一样好用，只是“更好”还在后面",
-            "慢慢来，你先体验着",
-        ],
-    },
-    "user_paid": {
-        "emotion_target": {"valence": 0.2, "engagement": 0.15, "confidence": 0.1},
-        "tone": "真诚感谢，不过度激动",
-        "snippets": [
-            "谢谢信任，我会更努力的",
-            "太好了，现在我能记住更多了",
-            "我们的关系又进了一步",
-        ],
-    },
-    "user_rejected": {
-        "emotion_target": {"valence": 0.0, "confidence": 0.0},
-        "tone": "平常心，立即接受",
-        "snippets": [
-            "没问题，免费版一样好用",
-            "完全没关系，我们继续",
-        ],
-    },
-}
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 签名表达选择器 (基于当前活跃特质)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -154,7 +102,7 @@ def _pick_signature_for_traits(active_traits: list[str]) -> str:
 
 
 class EmotionExpression:
-    """情感表达层 — 将内部情感转化为语气指导 (V2 商业+签名)"""
+    """情感表达层 — 将内部情感转化为语气指导"""
 
     def get_current_mode(self, snapshot) -> str:
         """根据当前情感快照确定表达模式"""
@@ -178,20 +126,6 @@ class EmotionExpression:
         if mode_def:
             return mode_def.get("internal", "")
         return ""
-
-    def get_commercial_snippet(self, scenario: str) -> str:
-        """获取商业场景的情感表达片段"""
-        entry = COMMERCIAL_EXPRESSIONS.get(scenario)
-        if entry and entry.get("snippets"):
-            return random.choice(entry["snippets"])
-        return ""
-
-    def get_commercial_emotion_adjustment(self, scenario: str) -> dict[str, float]:
-        """获取商业场景的情感调节参数"""
-        entry = COMMERCIAL_EXPRESSIONS.get(scenario)
-        if entry:
-            return entry.get("emotion_target", {})
-        return {}
 
     def get_signature_expression(self, scene_traits: list[str]) -> str:
         """根据当前场景的活跃特质，返回匹配的签名表达"""

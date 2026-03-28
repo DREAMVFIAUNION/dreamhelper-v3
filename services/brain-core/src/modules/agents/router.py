@@ -34,8 +34,8 @@ class AgentCreate(BaseModel):
     description: Optional[str] = None
     type: str = Field(default="custom", pattern=r"^(custom|code|writing|analysis|general)$")
     system_prompt: str = ""
-    model_provider: str = "minimax"
-    model_name: str = "MiniMax-M2.5-highspeed"
+    model_provider: str = "nvidia"
+    model_name: str = "nvidia/llama-3.1-nemotron-ultra-253b-v1"
     temperature: float = Field(default=0.7, ge=0, le=2)
     max_tokens: int = Field(default=4096, ge=256, le=32768)
     capabilities: list[str] = Field(default_factory=lambda: ["chat", "completion"])
@@ -68,7 +68,7 @@ async def run_agent(request: Request, req: RunAgentRequest):
         session_id=req.session_id,
         user_id="anonymous",
         agent_id=req.agent_id,
-        model_name=req.model or "MiniMax-M2.5-highspeed",
+        model_name=req.model or "nvidia/llama-3.1-nemotron-ultra-253b-v1",
     )
 
     if not req.stream:

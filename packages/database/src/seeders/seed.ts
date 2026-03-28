@@ -11,8 +11,29 @@ async function hashPassword(password: string): Promise<string> {
   return `${salt}:${hash.toString('hex')}`
 }
 
+/** 本地默认用户 ID — 与 apps/web-portal/src/lib/local-user.ts 保持一致 */
+const LOCAL_USER_ID = '00000000-0000-0000-0000-000000000001'
+
 async function main() {
   console.log('🌱 Seeding database...')
+
+  // ── 0. 创建本地默认用户 (免注册模式) ──
+  const localUser = await prisma.user.upsert({
+    where: { id: LOCAL_USER_ID },
+    update: {},
+    create: {
+      id: LOCAL_USER_ID,
+      email: 'local@dreamhelper.local',
+      username: 'local',
+      displayName: '本地用户',
+      passwordHash: '',
+      status: 'active',
+      tierLevel: 0,
+      emailVerified: true,
+      settings: { theme: 'dark', language: 'zh-CN' },
+    },
+  })
+  console.log(`  ✓ Local user: ${localUser.email} (免注册默认用户)`)
 
   // ── 1. 创建管理员用户 ──
   const adminPassword = await hashPassword('Admin@2026')
@@ -32,23 +53,7 @@ async function main() {
   })
   console.log(`  ✓ Admin user: ${admin.email}`)
 
-  // ── 2. 创建测试用户 ──
-  const testPassword = await hashPassword('Test@2026')
-  const testUser = await prisma.user.upsert({
-    where: { email: 'test@dreamvfia.com' },
-    update: {},
-    create: {
-      email: 'test@dreamvfia.com',
-      username: 'testuser',
-      displayName: '测试用户',
-      passwordHash: testPassword,
-      status: 'active',
-      tierLevel: 1,
-      emailVerified: true,
-      settings: { theme: 'dark', language: 'zh-CN' },
-    },
-  })
-  console.log(`  ✓ Test user: ${testUser.email}`)
+  const testUser = localUser
 
   // ── 3. 创建默认组织 ──
   const org = await prisma.organization.upsert({

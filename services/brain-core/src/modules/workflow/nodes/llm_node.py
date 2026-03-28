@@ -22,7 +22,7 @@ class LlmNode(BaseNode):
                     "type": "select", "label": "模型厂商", "default": "minimax",
                     "options": ["minimax", "qwen", "deepseek", "openai"],
                 },
-                "model": {"type": "string", "label": "模型名称", "default": "MiniMax-M2.5-highspeed"},
+                "model": {"type": "string", "label": "模型名称", "default": "nvidia/llama-3.1-nemotron-ultra-253b-v1"},
                 "prompt": {"type": "textarea", "label": "提示词", "default": "", "placeholder": "你是一个专业助手..."},
                 "message_template": {
                     "type": "textarea", "label": "消息模板",
@@ -37,7 +37,7 @@ class LlmNode(BaseNode):
         from ...llm.llm_client import get_llm_client
 
         provider = config.get("provider", "minimax")
-        model = config.get("model", "MiniMax-M2.5-highspeed")
+        model = config.get("model", "nvidia/llama-3.1-nemotron-ultra-253b-v1")
         system_prompt = config.get("prompt", "")
         msg_template = config.get("message_template", "{{input}}")
         temperature = config.get("temperature", 0.7)

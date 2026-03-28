@@ -69,19 +69,19 @@ class Settings(BaseSettings):
     DUAL_BRAIN_ENABLED: bool = True
     DUAL_BRAIN_LEFT_MODEL: str = "z-ai/glm5"             # 左脑皮层: GLM-5 744B MoE via NVIDIA NIM
     DUAL_BRAIN_RIGHT_MODEL: str = "qwen/qwen3.5-397b-a17b" # 右脑皮层: Qwen-3.5 397B VLM via NVIDIA NIM
-    DUAL_BRAIN_JUDGE_MODEL: str = "MiniMax-M2.7-highspeed" # 竞争裁判: MiniMax(快速)
+    DUAL_BRAIN_JUDGE_MODEL: str = "nvidia/llama-3.1-nemotron-ultra-253b-v1" # 竞争裁判: Nemotron Ultra via NVIDIA NIM
     DUAL_BRAIN_FUSION_MODEL: str = "z-ai/glm5"             # 前额叶融合: GLM-5 744B via NVIDIA NIM
     DUAL_BRAIN_LEFT_TIMEOUT: float = 60.0
     DUAL_BRAIN_RIGHT_TIMEOUT: float = 90.0
 
     # Thalamus (丘脑 — MiniMax 快速路由/分类)
-    THALAMUS_MODEL: str = "MiniMax-M2.7-highspeed"
+    THALAMUS_MODEL: str = "nvidia/llama-3.1-nemotron-ultra-253b-v1"  # 丘脑: Nemotron Ultra via NVIDIA NIM
     THALAMUS_ENABLED: bool = True
 
     # Brainstem (脑干 — 快速响应 + 意图分析)
     BRAINSTEM_ENABLED: bool = True
     BRAINSTEM_MODEL: str = "z-ai/glm5"                      # 脑干分析: GLM-5 via NVIDIA NIM
-    BRAINSTEM_RESPONSE_MODEL: str = "MiniMax-M2.7-highspeed" # 脑干快速响应用MiniMax
+    BRAINSTEM_RESPONSE_MODEL: str = "nvidia/llama-3.1-nemotron-ultra-253b-v1" # 脑干快速响应: Nemotron Ultra via NVIDIA NIM
     BRAINSTEM_TIMEOUT: float = 45.0
 
     # Cerebellum (小脑 — Kimi K2.5 Code 代码精度/技术校准)
@@ -111,7 +111,7 @@ class Settings(BaseSettings):
     MCP_FILESYSTEM: bool = True
     MCP_FILESYSTEM_ALLOWED_DIRS: str = "C:/tmp/dreamhelp"
     MCP_MEMORY_GRAPH: bool = True
-    MCP_WINDOWS: bool = True              # Windows 桌面自动化 (本地 Windows-MCP)
+    MCP_WINDOWS: bool = False             # Windows 桌面自动化 (本地 Windows-MCP) — 默认关闭
     MCP_WINDOWS_DIR: str = "D:/Windows-MCP-main"
     MCP_GIT: bool = False                 # 需要 GITHUB_PERSONAL_ACCESS_TOKEN
     GITHUB_PERSONAL_ACCESS_TOKEN: str = ""

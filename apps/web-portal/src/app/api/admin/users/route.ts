@@ -1,33 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken, hashPassword } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
-
-// ═══ 管理员权限校验 helper ═══
-
-async function verifyAdmin(req: NextRequest): Promise<{ ok: true; userId: string } | { ok: false; res: NextResponse }> {
-  const tokenStr = req.cookies.get('token')?.value
-  if (!tokenStr) {
-    return { ok: false, res: NextResponse.json({ success: false, error: '未登录' }, { status: 401 }) }
-  }
-
-  try {
-    const payload = await verifyToken(tokenStr)
-    const user = await prisma.user.findUnique({ where: { id: payload.sub }, select: { id: true, tierLevel: true } })
-    if (!user || user.tierLevel < 9) {
-      return { ok: false, res: NextResponse.json({ success: false, error: '无权限' }, { status: 403 }) }
-    }
-    return { ok: true, userId: user.id }
-  } catch {
-    return { ok: false, res: NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 }) }
-  }
-}
+import { getLocalUserId } from '@/lib/local-user'
 
 // ═══ GET /api/admin/users — 用户列表 (分页+搜索) ═══
 
 export async function GET(req: NextRequest) {
-  const auth = await verifyAdmin(req)
-  if (!auth.ok) return auth.res
-
   try {
     const url = req.nextUrl
     const page = Math.max(1, Number(url.searchParams.get('page') ?? '1'))
@@ -90,9 +67,6 @@ export async function GET(req: NextRequest) {
 // ═══ POST /api/admin/users — 管理员创建用户 ═══
 
 export async function POST(req: NextRequest) {
-  const auth = await verifyAdmin(req)
-  if (!auth.ok) return auth.res
-
   try {
     const body = (await req.json()) as {
       email?: string
@@ -119,7 +93,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: '邮箱或用户名已存在' }, { status: 409 })
     }
 
-    const passwordHash = await hashPassword(body.password)
+    const { pbkdf2, randomBytes } = await import('node:crypto')
+    const { promisify } = await import('node:util')
+    const pbkdf2Async = promisify(pbkdf2)
+    const salt = randomBytes(32).toString('hex')
+    const hash = await pbkdf2Async(body.password, salt, 100_000, 64, 'sha512')
+    const passwordHash = `${salt}:${hash.toString('hex')}`
     const user = await prisma.user.create({
       data: {
         email: body.email,
@@ -151,9 +130,6 @@ export async function POST(req: NextRequest) {
 // ═══ PATCH /api/admin/users — 更新用户状态 ═══
 
 export async function PATCH(req: NextRequest) {
-  const auth = await verifyAdmin(req)
-  if (!auth.ok) return auth.res
-
   try {
     const body = (await req.json()) as {
       userId?: string
@@ -172,8 +148,8 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ success: false, error: '用户不存在' }, { status: 404 })
     }
 
-    // 获取操作者信息以验证权限
-    const operator = await prisma.user.findUnique({ where: { id: auth.userId }, select: { tierLevel: true } })
+    const operatorId = getLocalUserId()
+    const operator = await prisma.user.findUnique({ where: { id: operatorId }, select: { tierLevel: true } })
 
     const updates: Record<string, unknown> = {}
 

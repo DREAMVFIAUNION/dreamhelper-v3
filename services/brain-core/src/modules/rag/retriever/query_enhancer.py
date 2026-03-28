@@ -116,7 +116,7 @@ class QueryEnhancer:
 
         response = await client.complete(LLMRequest(
             messages=[{"role": "user", "content": prompt}],
-            model="MiniMax-M2.5-highspeed",  # 用最快的模型
+            model="nvidia/llama-3.1-nemotron-ultra-253b-v1",  # NVIDIA 免费模型
             temperature=0.2,
             max_tokens=512,
             stream=False,

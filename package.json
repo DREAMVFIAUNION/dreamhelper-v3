@@ -11,18 +11,26 @@
     "pnpm": ">=9.0.0"
   },
   "scripts": {
+    "start": "tsx scripts/start.ts",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "test:e2e": "turbo run test:e2e",
+    "setup": "tsx scripts/setup.ts",
+    "doctor": "tsx scripts/doctor.ts",
+    "verify:web": "pnpm --filter @dreamhelp/web-portal test && pnpm --filter @dreamhelp/web-portal build",
+    "verify:gateway": "pnpm --filter @dreamhelp/gateway test && pnpm --filter @dreamhelp/gateway build",
+    "verify:brain": "cd services/brain-core && python -m pytest tests/test_smoke.py tests/test_service_entrypoint.py -q",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "clean": "turbo run clean && rimraf node_modules",
     "db:migrate": "pnpm --filter @dreamhelp/database migrate",
     "db:seed": "pnpm --filter @dreamhelp/database seed",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "prepare": "husky"
+    "postinstall": "pnpm --filter @dreamhelp/database generate",
+    "prepare": "husky",
+    "verify:brain:full": "cd services/brain-core && python -m pytest tests -q"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",
@@ -30,11 +38,17 @@
     "lint-staged": "^15.2.0",
     "prettier": "^3.4.0",
     "rimraf": "^6.0.0",
+    "tsx": "^4.21.0",
     "turbo": "^2.3.0",
     "typescript": "^5.7.0"
   },
   "lint-staged": {
-    "*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
-    "*.{json,md,css,yaml}": ["prettier --write"]
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yaml}": [
+      "prettier --write"
+    ]
   }
 }

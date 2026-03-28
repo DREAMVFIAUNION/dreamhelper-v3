@@ -1,33 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
-import { hashPassword } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
-
-// ═══ 管理员权限校验 ═══
-
-async function verifyAdmin(req: NextRequest): Promise<{ ok: true; userId: string } | { ok: false; res: NextResponse }> {
-  const tokenStr = req.cookies.get('token')?.value
-  if (!tokenStr) {
-    return { ok: false, res: NextResponse.json({ success: false, error: '未登录' }, { status: 401 }) }
-  }
-  try {
-    const payload = await verifyToken(tokenStr)
-    const user = await prisma.user.findUnique({ where: { id: payload.sub }, select: { id: true, tierLevel: true } })
-    if (!user || user.tierLevel < 9) {
-      return { ok: false, res: NextResponse.json({ success: false, error: '无权限' }, { status: 403 }) }
-    }
-    return { ok: true, userId: user.id }
-  } catch {
-    return { ok: false, res: NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 }) }
-  }
-}
 
 // ═══ GET /api/admin/users/[id] — 单用户完整详情 ═══
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await verifyAdmin(req)
-  if (!auth.ok) return auth.res
-
   const { id } = await params
 
   try {
@@ -84,9 +60,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 // ═══ PUT /api/admin/users/[id] — 编辑用户资料 ═══
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await verifyAdmin(req)
-  if (!auth.ok) return auth.res
-
   const { id } = await params
 
   try {
@@ -120,7 +93,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
     if (body.emailVerified !== undefined) updates.emailVerified = body.emailVerified
     if (body.resetPassword) {
-      updates.passwordHash = await hashPassword(body.resetPassword)
+      const { pbkdf2, randomBytes } = await import('node:crypto')
+      const { promisify } = await import('node:util')
+      const pbkdf2Async = promisify(pbkdf2)
+      const salt = randomBytes(32).toString('hex')
+      const hash = await pbkdf2Async(body.resetPassword, salt, 100_000, 64, 'sha512')
+      updates.passwordHash = `${salt}:${hash.toString('hex')}`
     }
 
     const updated = await prisma.user.update({

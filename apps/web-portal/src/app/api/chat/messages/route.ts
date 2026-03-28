@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
+import { getLocalUserId } from '@/lib/local-user'
 
 // ═══ POST /api/chat/messages — 保存消息 (user + assistant) ═══
 
 export async function POST(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
+    const userId = getLocalUserId()
 
     let body: {
       sessionId: string
@@ -42,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     // 验证会话归属
     const session = await prisma.chatSession.findFirst({
-      where: { id: body.sessionId, userId: payload.sub, status: 'active' },
+      where: { id: body.sessionId, userId, status: 'active' },
       select: { id: true, title: true },
     })
 

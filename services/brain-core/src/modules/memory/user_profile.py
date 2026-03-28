@@ -37,7 +37,7 @@ async def extract_user_facts(
     user_id: str,
     conversation: list[dict],
     session_id: str = "",
-    model: str = "MiniMax-M2.5-highspeed",
+    model: str = "nvidia/llama-3.1-nemotron-ultra-253b-v1",
 ) -> dict[str, str]:
     """从对话中提取用户事实并存入长期记忆
 

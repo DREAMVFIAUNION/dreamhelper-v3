@@ -93,7 +93,7 @@ async def generate_proactive_message(
         client = get_llm_client()
         request = LLMRequest(
             messages=[{"role": "user", "content": prompt}],
-            model="MiniMax-M2.5-highspeed",
+            model="nvidia/llama-3.1-nemotron-ultra-253b-v1",
             temperature=0.9,
             max_tokens=256,
             stream=False,

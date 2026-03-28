@@ -20,7 +20,6 @@ from .world_model import WorldModel
 from .goal_system import GoalSystem
 from .inner_voice import InnerVoice
 from .consistency import get_consistency_engine
-from .conversion_hooks import get_conversion_hooks
 from .user_registry import get_user_registry
 from .evolution_tracker import EvolutionTracker
 
@@ -43,7 +42,6 @@ class ConsciousnessCore:
         self.goal_system = GoalSystem()
         self.inner_voice = InnerVoice(self)
         self.consistency = get_consistency_engine()
-        self.conversion = get_conversion_hooks()
         self.user_registry = get_user_registry()
         self.evolution = EvolutionTracker()
         self._started = False
@@ -147,25 +145,17 @@ class ConsciousnessCore:
         if not self.config.enabled:
             return ""
 
-        # 获取用户信息以确定 tier_level（用于分层人格注入）
         known = None
-        tier_level = 0
         if user_id and user_id != "anonymous":
             known = self.user_registry.get_user(user_id)
-            if known:
-                tier_level = known.tier_level or 0
 
-        # V3: 使用增强版情感表达 (专业会员) 或原版
-        if tier_level >= 2:
-            # 同步场景特质到情感表达层 (用于签名表达选择)
-            scene_traits = self.consistency.get_scene_traits()
-            self.emotion_expression.set_scene_traits(scene_traits)
-            emotion_prompt = self.emotion_expression.get_prompt(self.emotion_state.snapshot)
-        else:
-            emotion_prompt = self.emotion_state.get_prompt()
+        # 增强版情感表达 (全功能开放)
+        scene_traits = self.consistency.get_scene_traits()
+        self.emotion_expression.set_scene_traits(scene_traits)
+        emotion_prompt = self.emotion_expression.get_prompt(self.emotion_state.snapshot)
 
         parts = [
-            self.self_model.get_self_prompt(tier_level=tier_level),
+            self.self_model.get_self_prompt(),
             emotion_prompt,
             self.world_model.get_world_context(user_id),
             f"## 当前目标\n{self.goal_system.get_active_goals_prompt()}",
@@ -177,17 +167,12 @@ class ConsciousnessCore:
             parts.append(self.evolution.get_evolution_prompt())
 
         # V3: 人格一致性锚点 (每 N 轮自动注入)
-        if user_message and tier_level >= 2:
+        if user_message:
             anchor = self.consistency.on_turn(user_message)
             if anchor:
                 parts.append(anchor)
             elif self.consistency.should_strengthen_anchor():
                 parts.append(self.consistency.get_strengthened_anchor())
-
-        # V3: 商业转化提示 (仅免费用户)
-        commercial_hint = self.conversion.get_commercial_prompt_hint(user_id, tier_level)
-        if commercial_hint:
-            parts.append(commercial_hint)
 
         # 注入用户身份识别上下文
         if user_id and user_id != "anonymous":
@@ -203,9 +188,6 @@ class ConsciousnessCore:
                     identity_lines.append(f"- 用户名: {known.username}")
                 if known.email:
                     identity_lines.append(f"- 邮箱: {known.email}")
-                if known.tier_level:
-                    tier_names = {0: "免费用户", 1: "基础会员", 2: "专业会员", 3: "企业会员", 99: "管理员"}
-                    identity_lines.append(f"- 等级: {tier_names.get(known.tier_level, f'Tier {known.tier_level}')}")
                 identity_lines.extend([
                     f"- 已交互 {known.interaction_count} 次",
                     f"- 近期话题: {topics}",
@@ -225,9 +207,6 @@ class ConsciousnessCore:
 
         # 注册/更新用户到意识核
         self.user_registry.on_user_message(user_id, message)
-
-        # V3: 通知转化引擎对话开始
-        self.conversion.on_conversation_start(user_id)
 
         self.emotion_state.update_on_event("new_session", 0.3)
         await self.world_model.observe_user(user_id, message)
@@ -290,7 +269,6 @@ class ConsciousnessCore:
             "inner_voice": self.inner_voice.get_stats(),
             "value_anchor": self.value_anchor.get_stats(),
             "consistency": self.consistency.get_stats(),
-            "conversion": self.conversion.get_stats(),
             "user_registry": self.user_registry.get_stats(),
             "evolution": self.evolution.get_stats(),
         }

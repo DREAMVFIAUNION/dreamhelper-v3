@@ -45,7 +45,7 @@ class CodeAgent(BaseAgent):
         client = get_llm_client()
         request = LLMRequest(
             messages=messages,
-            model=context.model_name or "MiniMax-M2.5-highspeed",
+            model=context.model_name or "nvidia/llama-3.1-nemotron-ultra-253b-v1",
             temperature=0.5,
             max_tokens=8192,
             stream=False,

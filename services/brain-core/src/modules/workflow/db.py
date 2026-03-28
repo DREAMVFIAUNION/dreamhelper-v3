@@ -44,8 +44,10 @@ async def close_pool():
         _pool = None
 
 
+LOCAL_USER_UUID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+
 async def ensure_system_user():
-    """确保系统用户存在 (用于无 JWT 上下文的工作流)"""
+    """确保系统用户存在 (用于无 JWT 上下文的工作流) 以及本地默认用户"""
     pool = await get_pool()
     exists = await pool.fetchval(
         "SELECT 1 FROM users WHERE id = $1", SYSTEM_USER_UUID,
@@ -58,6 +60,14 @@ async def ensure_system_user():
             ON CONFLICT (id) DO NOTHING
             """,
             SYSTEM_USER_UUID,
+        )
+        await pool.execute(
+            """
+            INSERT INTO users (id, email, username, password_hash, status, created_at, updated_at)
+            VALUES ($1, 'local@dreamhelper.local', 'local', 'nologin', 'active', NOW(), NOW())
+            ON CONFLICT (id) DO NOTHING
+            """,
+            LOCAL_USER_UUID,
         )
 
 

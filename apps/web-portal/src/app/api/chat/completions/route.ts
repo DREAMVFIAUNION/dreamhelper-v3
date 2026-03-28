@@ -6,8 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
+import { getLocalUserId } from '@/lib/local-user'
 
 import { brainCoreFetch } from '@/lib/brain-core-url'
 const MAX_HISTORY_MESSAGES = 50
@@ -23,15 +23,7 @@ export async function POST(request: NextRequest) {
     user_profile?: { username: string; display_name: string; email: string; tier_level: number }
   }
 
-  // 尝试获取用户身份
-  let userId: string | null = null
-  const tokenStr = request.cookies.get('token')?.value
-  if (tokenStr) {
-    try {
-      const payload = await verifyToken(tokenStr)
-      userId = payload.sub
-    } catch { /* 匿名请求也允许 */ }
-  }
+  const userId = getLocalUserId()
 
   // 如果有 sessionId，从 DB 加载历史消息拼入上下文
   if (body.session_id && userId) {

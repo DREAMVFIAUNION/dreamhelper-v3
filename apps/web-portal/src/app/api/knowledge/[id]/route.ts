@@ -1,23 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
+import { getLocalUserId } from '@/lib/local-user'
 import { brainCoreFetch } from '@/lib/brain-core-url'
 
 // GET /api/knowledge/[id] — 获取单个文档详情
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
+    const userId = getLocalUserId()
     const { id } = await params
 
     const doc = await prisma.document.findUnique({
@@ -25,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       include: { knowledgeBase: { select: { ownerId: true } } },
     })
 
-    if (!doc || doc.knowledgeBase.ownerId !== payload.sub) {
+    if (!doc || doc.knowledgeBase.ownerId !== userId) {
       return NextResponse.json({ success: false, error: '文档不存在' }, { status: 404 })
     }
 
@@ -51,18 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 // DELETE /api/knowledge/[id] — 删除文档
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
+    const userId = getLocalUserId()
     const { id } = await params
 
     const doc = await prisma.document.findUnique({
@@ -70,7 +48,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       include: { knowledgeBase: { select: { id: true, ownerId: true } } },
     })
 
-    if (!doc || doc.knowledgeBase.ownerId !== payload.sub) {
+    if (!doc || doc.knowledgeBase.ownerId !== userId) {
       return NextResponse.json({ success: false, error: '文档不存在' }, { status: 404 })
     }
 

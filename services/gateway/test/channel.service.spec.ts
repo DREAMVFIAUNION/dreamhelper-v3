@@ -23,8 +23,11 @@ const mockUserMapping = {
 
 describe('ChannelService', () => {
   let service: ChannelService
+  let consoleErrorSpy: jest.SpyInstance
 
   beforeEach(async () => {
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ChannelService,
@@ -33,6 +36,10 @@ describe('ChannelService', () => {
     }).compile()
 
     service = module.get<ChannelService>(ChannelService)
+  })
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore()
   })
 
   it('should be defined', () => {

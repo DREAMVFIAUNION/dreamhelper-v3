@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
+import { getLocalUserId } from '@/lib/local-user'
 import crypto from 'crypto'
 import { brainCoreFetch } from '@/lib/brain-core-url'
 
@@ -11,19 +11,7 @@ const ALLOWED_EXTS = ['.txt', '.md', '.pdf', '.csv', '.json', '.docx']
 // POST /api/knowledge/upload — 文件上传到知识库
 export async function POST(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
-    const userId = payload.sub
+    const userId = getLocalUserId()
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     const titleOverride = formData.get('title') as string | null

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
-  MessageSquare, Bot, Database, BarChart3, Settings, ChevronLeft, Home, Shield, Workflow, Radio,
+  MessageSquare, Bot, Database, BarChart3, Settings, ChevronLeft, Shield, Workflow, Radio,
 } from 'lucide-react'
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
@@ -110,7 +110,6 @@ export function Sidebar() {
         <Separator className="bg-sidebar-border" />
         <div className="px-2 py-2 space-y-1">
           {[
-            { href: '/', icon: Home, label: t('home'), show: true, accent: false },
             { href: '/admin', icon: Shield, label: t('admin'), show: isAdmin, accent: true },
           ].filter((i) => i.show).map(({ href, icon: Icon, label, accent }) => {
             const linkEl = (

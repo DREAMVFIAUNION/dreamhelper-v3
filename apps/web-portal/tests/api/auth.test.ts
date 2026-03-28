@@ -1,10 +1,26 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 // Helper to create mock requests
 function mockRequest(url: string, init?: { method?: string; headers?: Record<string, string>; body?: string }): NextRequest {
   return new NextRequest(new URL(url, 'http://localhost:3000'), init as any)
 }
+
+vi.mock('@dreamhelp/database', () => ({
+  prisma: {
+    user: {
+      findUnique: vi.fn(),
+      update: vi.fn(),
+      create: vi.fn(),
+    },
+  },
+}))
+
+beforeEach(async () => {
+  vi.clearAllMocks()
+  const { prisma } = await import('@dreamhelp/database')
+  vi.mocked(prisma.user.findUnique).mockResolvedValue(null)
+})
 
 describe('Auth API Routes', () => {
   describe('POST /api/auth/login', () => {
@@ -30,7 +46,7 @@ describe('Auth API Routes', () => {
         body: JSON.stringify({ email: 'nonexist@test.com', password: 'wrong' }),
       })
       const res = await POST(req)
-      expect([400, 401, 500]).toContain(res.status)
+      expect(res.status).toBe(401)
     })
   })
 

@@ -8,7 +8,7 @@
     "start": "node dist/main",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,test}/**/*.ts\"",
-    "test": "jest",
+    "test": "jest --config ./jest.config.cjs",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "clean": "rimraf dist"
   },

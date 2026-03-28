@@ -6,7 +6,7 @@ Thalamus 负责：
 - 决定信息路由：脑干快速响应 vs 大脑皮层深度处理
 - 输出路由指令供 BrainEngine 执行
 
-使用 MiniMax-M2.5-highspeed（最快模型，~1-3s 完成分类）
+使用 NVIDIA Nemotron Ultra（免费模型，~2-5s 完成分类）
 """
 
 import json

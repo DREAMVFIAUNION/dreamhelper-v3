@@ -27,62 +27,53 @@ def get_llm_client() -> "LLMClient":
 
 
 class LLMClient:
-    """所有 LLM 调用的统一入口 — 支持多提供商"""
+    """所有 LLM 调用的统一入口 — 支持多提供商 (动态 BYOK 改版)"""
 
     def __init__(self):
         self.providers: List[BaseProvider] = []
+        self._cache_time = 0
+        self._ttl_seconds = 10  # 缓存 10 秒
 
-        # MiniMax (有 API Key 才注册)
-        if settings.MINIMAX_API_KEY:
-            self.providers.append(MiniMaxProvider(api_key=settings.MINIMAX_API_KEY))
+    async def _ensure_dynamic_providers(self):
+        """动态加载用户在前端配置的 API Key 覆盖本地 .env"""
+        import time
+        if time.time() - self._cache_time < self._ttl_seconds and self.providers:
+            return
 
-        # OpenAI (按需注册)
-        if settings.OPENAI_API_KEY:
-            self.providers.append(OpenAIProvider(
-                api_key=settings.OPENAI_API_KEY,
-                base_url=settings.OPENAI_BASE_URL,
-            ))
+        from ...modules.workflow.db import get_pool
+        try:
+            pool = await get_pool()
+            rows = await pool.fetch("SELECT key, value FROM system_configs WHERE key LIKE '%_API_KEY'")
+            dynamic_keys = {r["key"]: r["value"] for r in rows}
+        except Exception as e:
+            logger.warning("Failed to fetch dynamic API keys: %s", e)
+            dynamic_keys = {}
 
-        # DeepSeek (按需注册)
-        if settings.DEEPSEEK_API_KEY:
-            self.providers.append(DeepSeekProvider(
-                api_key=settings.DEEPSEEK_API_KEY,
-                base_url=settings.DEEPSEEK_BASE_URL,
-            ))
+        minimax_key = dynamic_keys.get("MINIMAX_API_KEY") or settings.MINIMAX_API_KEY
+        openai_key = dynamic_keys.get("OPENAI_API_KEY") or settings.OPENAI_API_KEY
+        deepseek_key = dynamic_keys.get("DEEPSEEK_API_KEY") or settings.DEEPSEEK_API_KEY
+        qwen_key = dynamic_keys.get("QWEN_API_KEY") or settings.QWEN_API_KEY
+        glm_key = dynamic_keys.get("GLM_API_KEY") or settings.GLM_API_KEY
+        kimi_key = dynamic_keys.get("KIMI_API_KEY") or settings.KIMI_API_KEY
+        nvidia_key = dynamic_keys.get("NVIDIA_API_KEY") or settings.NVIDIA_API_KEY
 
-        # Qwen (按需注册)
-        if settings.QWEN_API_KEY:
-            self.providers.append(QwenProvider(
-                api_key=settings.QWEN_API_KEY,
-                base_url=settings.QWEN_BASE_URL,
-            ))
+        self.providers = []
+        if minimax_key:
+            self.providers.append(MiniMaxProvider(api_key=str(minimax_key)))
+        if openai_key:
+            self.providers.append(OpenAIProvider(api_key=str(openai_key), base_url=settings.OPENAI_BASE_URL))
+        if deepseek_key:
+            self.providers.append(DeepSeekProvider(api_key=str(deepseek_key), base_url=settings.DEEPSEEK_BASE_URL))
+        if qwen_key:
+            self.providers.append(QwenProvider(api_key=str(qwen_key), base_url=settings.QWEN_BASE_URL))
+        if glm_key:
+            self.providers.append(GLMProvider(api_key=str(glm_key), base_url=settings.GLM_BASE_URL))
+        if kimi_key:
+            self.providers.append(KimiProvider(api_key=str(kimi_key), base_url=settings.KIMI_BASE_URL))
+        if nvidia_key:
+            self.providers.append(NvidiaProvider(api_key=str(nvidia_key), base_url=settings.NVIDIA_BASE_URL))
 
-        # GLM / 智谱 (按需注册)
-        if settings.GLM_API_KEY:
-            self.providers.append(GLMProvider(
-                api_key=settings.GLM_API_KEY,
-                base_url=settings.GLM_BASE_URL,
-            ))
-
-        # Kimi / Moonshot AI (按需注册)
-        if settings.KIMI_API_KEY:
-            self.providers.append(KimiProvider(
-                api_key=settings.KIMI_API_KEY,
-                base_url=settings.KIMI_BASE_URL,
-            ))
-
-        # NVIDIA NIM (按需注册 — 免费无限量)
-        if settings.NVIDIA_API_KEY:
-            self.providers.append(NvidiaProvider(
-                api_key=settings.NVIDIA_API_KEY,
-                base_url=settings.NVIDIA_BASE_URL,
-            ))
-
-        provider_names = [p.name for p in self.providers]
-        if not self.providers:
-            logger.warning("No LLM providers registered! Check API keys in .env")
-        else:
-            logger.info("LLM providers: %s", provider_names)
+        self._cache_time = time.time()
 
     def _get_provider(self, model: str) -> BaseProvider:
         """智能路由: NVIDIA(免费) 优先 → 原厂(付费) → fallback"""
@@ -96,12 +87,10 @@ class LLMClient:
                 else:
                     original_provider = provider
 
-        # NVIDIA 免费通道优先
         if nvidia_provider:
             return nvidia_provider
         if original_provider:
             return original_provider
-        # fallback: 使用第一个 provider
         if self.providers:
             return self.providers[0]
         raise ValueError(f"No provider supports model: {model}")
@@ -143,11 +132,13 @@ class LLMClient:
 
     async def complete(self, request: LLMRequest) -> LLMResponse:
         """非流式补全"""
+        await self._ensure_dynamic_providers()
         provider = self._get_provider(request.model)
         return await provider.complete(request)
 
     async def stream(self, request: LLMRequest) -> AsyncGenerator[str, None]:
         """流式补全"""
+        await self._ensure_dynamic_providers()
         provider = self._get_provider(request.model)
         async for chunk in provider.stream(request):
             yield chunk

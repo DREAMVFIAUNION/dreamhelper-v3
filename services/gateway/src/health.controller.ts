@@ -6,6 +6,6 @@ export class HealthController {
   @Public()
   @Get()
   check() {
-    return { status: 'ok', service: 'gateway', version: '3.0.0', timestamp: new Date().toISOString() }
+    return { status: 'ok', service: 'gateway', version: '3.7.0', timestamp: new Date().toISOString() }
   }
 }

@@ -76,7 +76,8 @@ class PlanExecuteAgent(BaseAgent):
 
         llm = get_llm_client()
         registry = get_tool_registry()
-        tool_names = [t.name for t in registry.list_tools()]
+        dynamic_schemas = await registry.get_dynamic_tool_schemas(query=user_input)
+        tool_names = [t["name"] for t in dynamic_schemas]
 
         # ── Phase 1: 生成计划 ──
         yield AgentStep(

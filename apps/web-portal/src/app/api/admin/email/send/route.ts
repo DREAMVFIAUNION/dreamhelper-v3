@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       where: { status: 'active', emailVerified: true },
       select: { email: true },
     })
-    recipients = users.map((u) => u.email)
+    recipients = users.map(({ email }) => email)
   } else {
     recipients = body.to ?? []
   }

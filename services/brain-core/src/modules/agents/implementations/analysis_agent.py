@@ -45,9 +45,10 @@ class AnalysisAgent(BaseAgent):
         )
 
     async def think(self, user_input: str, context: AgentContext) -> AgentStep:
+        dynamic_schemas = await ToolRegistry.get_dynamic_tool_schemas(query=user_input)
         tools_desc = "\n".join(
             f"- {t['name']}: {t['description']}"
-            for t in ToolRegistry.list_tools()
+            for t in dynamic_schemas
         ) or "（无可用工具）"
         system = ANALYSIS_SYSTEM_PROMPT.format(tools=tools_desc)
 
@@ -59,7 +60,7 @@ class AnalysisAgent(BaseAgent):
         client = get_llm_client()
         request = LLMRequest(
             messages=messages,
-            model=context.model_name or "MiniMax-M2.5-highspeed",
+            model=context.model_name or "nvidia/llama-3.1-nemotron-ultra-253b-v1",
             temperature=0.4,
             max_tokens=8192,
             stream=False,

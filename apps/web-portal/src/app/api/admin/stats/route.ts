@@ -1,29 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
 
 // ═══ GET /api/admin/stats — 管理面板统计数据 ═══
 
 export async function GET(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string; role?: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
-    // 验证管理员权限
-    const user = await prisma.user.findUnique({ where: { id: payload.sub } })
-    if (!user || user.tierLevel < 9) {
-      return NextResponse.json({ success: false, error: '无权限' }, { status: 403 })
-    }
-
     const todayStart = new Date(new Date().setHours(0, 0, 0, 0))
 
     // 并行查询统计数据

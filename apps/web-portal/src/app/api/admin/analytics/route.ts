@@ -1,27 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
 
 // GET /api/admin/analytics — 按天聚合的数据分析
 export async function GET(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
-    const user = await prisma.user.findUnique({ where: { id: payload.sub } })
-    if (!user || user.tierLevel < 9) {
-      return NextResponse.json({ success: false, error: '无权限' }, { status: 403 })
-    }
-
     const { searchParams } = new URL(req.url)
     const days = Math.min(90, Math.max(7, parseInt(searchParams.get('days') || '14')))
 

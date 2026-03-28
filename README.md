@@ -1,6 +1,6 @@
 # DreamHelper
 
-## DREAMVFIA UNION
+## DREAMVFIA UNION v4.0.0-alpha
 
 ```text
  ____                              _   _      _                 
@@ -20,6 +20,13 @@
 ![Node](https://img.shields.io/badge/node-20.x-00ff88)
 ![pnpm](https://img.shields.io/badge/pnpm-9.x-00ff88)
 ![Python](https://img.shields.io/badge/python-3.12-00ff88)
+
+---
+
+## 🚀 What's New in v4.0.0-alpha
+- **Semantic Skill Routing (RAG-for-Skills)**: Replaced the static 100+ prompt-polluting skills dispatching with a zero-latency `BatchEmbedder` contextual integration. Agents now receive `Top-5` dynamically retrieved skills perfectly matched to their current task—drastically reducing hallucinations and saving thousands of tokens.
+- **Deep Dual-Brain Agent Engine**: Fully integrated the analytical Left Brain, systemic Right Brain, proactive Thalamus, and reflex Brainstem into a unified dynamic context loading mechanism via `ToolRegistry`.
+- **Local-first MCP Foundation**: Hardcoded local tool systems (`shell_exec`, `file_edit`) are transitioning to the standardized Model Context Protocol (MCP) spec natively.
 
 ---
 

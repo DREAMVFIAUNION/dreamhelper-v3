@@ -44,7 +44,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     if init_sentry():
         print("  ✓ Sentry error tracking enabled")
     # 启动时初始化
-    print(f"🚀 brain-core v3.7.0 starting in {settings.ENV} mode")
+    print(f"🚀 brain-core v4.0.0-alpha starting in {settings.ENV} mode")
     from .modules.tools.setup import register_all_tools
     register_all_tools()
     from .modules.rag.setup import seed_knowledge_base, sync_documents_from_db
@@ -54,6 +54,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     register_proactive_tasks()
     from .modules.tools.skills.setup import register_all_skills
     register_all_skills()
+    
+    # 异步预计算 100+ 技能的向量特征
+    from .modules.tools.skills.skill_engine import SkillEngine
+    print("  ⏳ 正在为 100+ 技能计算向量特征 (RAG for Skills)...")
+    try:
+        # 使用不阻塞后续核心 DB 加载的方式 (如果实在慢可以放后端)
+        # 这里为了稳妥还是等待一下，保证 Agent 启动就有能力
+        await asyncio.wait_for(SkillEngine.vectorize_all_skills(), timeout=25.0)
+    except Exception as e:
+        print(f"  ⚠ 技能向量化失败或超时: {e}")
+        
     from .modules.workflow.setup import register_workflow_nodes
     register_workflow_nodes()
     # 初始化工作流 DB 连接池 + 确保系统用户存在
@@ -99,10 +110,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     await consciousness.startup()
     # 意识核定时任务通过 scheduler 热注册机制自动启动
 
-    # 初始化 MCP 外接工具服务
+    # 初始化 MCP 外接工具服务（非阻塞容错：MCP 故障不影响核心服务）
     if settings.MCP_ENABLED:
-        from .modules.mcp.setup import initialize_mcp
-        await initialize_mcp()
+        try:
+            from .modules.mcp.setup import initialize_mcp
+            await initialize_mcp()
+        except Exception as e:
+            print(f"  ⚠ MCP 初始化失败 (降级运行，核心功能不受影响): {e}")
     yield
     # ── 关闭时清理（每步独立容错，防止级联失败）──
     try:
@@ -139,7 +153,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 from .common.rate_limit import limiter
 
-APP_VERSION = "3.7.0"
+APP_VERSION = "4.0.0-alpha"
 
 app = FastAPI(
     title="DREAMVFIA Brain Core",

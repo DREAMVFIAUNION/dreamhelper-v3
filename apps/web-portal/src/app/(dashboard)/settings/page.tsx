@@ -1,15 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback, type FormEvent } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { useTranslations } from 'next-intl'
 import { Bell, BellOff, Download, Trash2, AlertTriangle, Bot, Globe } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 
 const STYLE_KEYS = ['default', 'concise', 'detailed', 'professional', 'casual'] as const
@@ -63,100 +60,6 @@ function StyleSettingsSection() {
             )
           })}
         </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function ChangePasswordSection() {
-  const t = useTranslations('settings')
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [errors, setErrors] = useState<string[]>([])
-  const [success, setSuccess] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    setErrors([])
-    setSuccess('')
-
-    const errs: string[] = []
-    if (!currentPassword) errs.push('请填写当前密码')
-    if (newPassword.length < 8) errs.push('新密码至少 8 位')
-    if (!/[A-Z]/.test(newPassword)) errs.push('新密码需包含大写字母')
-    if (!/[a-z]/.test(newPassword)) errs.push('新密码需包含小写字母')
-    if (!/\d/.test(newPassword)) errs.push('新密码需包含数字')
-    if (newPassword !== confirmPassword) errs.push('两次密码不一致')
-
-    if (errs.length > 0) {
-      setErrors(errs)
-      return
-    }
-
-    setSubmitting(true)
-    try {
-      const res = await fetch('/api/auth/password', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ currentPassword, newPassword }),
-      })
-      const data = (await res.json()) as { success: boolean; errors?: string[]; message?: string }
-
-      if (data.success) {
-        setSuccess('密码修改成功')
-        setCurrentPassword('')
-        setNewPassword('')
-        setConfirmPassword('')
-      } else {
-        setErrors(data.errors ?? ['修改失败'])
-      }
-    } catch {
-      setErrors(['网络错误'])
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-mono">{t('changePassword')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {errors.length > 0 && (
-          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 text-destructive text-xs font-mono rounded-md">
-            {errors.map((err, i) => (
-              <div key={i}>⚠ {err}</div>
-            ))}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono rounded-md">
-            ✓ {success}
-          </div>
-        )}
-
-        <form className="space-y-3 max-w-sm" onSubmit={handleSubmit}>
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-mono text-muted-foreground tracking-widest">{t('currentPassword')}</Label>
-            <Input type="password" placeholder="••••••••" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} disabled={submitting} className="font-mono" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-mono text-muted-foreground tracking-widest">{t('newPassword')}</Label>
-            <Input type="password" placeholder="••••••••" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} disabled={submitting} className="font-mono" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-[10px] font-mono text-muted-foreground tracking-widest">{t('confirmPassword')}</Label>
-            <Input type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={submitting} className="font-mono" />
-          </div>
-          <Button type="submit" disabled={submitting} size="sm" className="font-mono">
-            {t('changePassword')}
-          </Button>
-        </form>
       </CardContent>
     </Card>
   )
@@ -481,6 +384,87 @@ function DangerZoneSection() {
   )
 }
 
+function ApiKeysSettingsSection() {
+  const [keys, setKeys] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/settings/keys')
+      .then(r => r.json())
+      .then(d => {
+        if (!d.error) setKeys(d)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  function handleChange(k: string, v: string) {
+    setKeys(prev => ({ ...prev, [k]: v }))
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const res = await fetch('/api/settings/keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(keys)
+      })
+      if (res.ok) {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      }
+    } catch {}
+    setSaving(false)
+  }
+
+  const providers = ['OPENAI_API_KEY', 'MINIMAX_API_KEY', 'DEEPSEEK_API_KEY', 'QWEN_API_KEY', 'GLM_API_KEY', 'KIMI_API_KEY', 'NVIDIA_API_KEY']
+
+  return (
+    <Card className="border-primary/30 shadow-[0_0_15px_hsl(var(--primary)/0.05)]">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-mono flex items-center gap-2">
+            <Globe size={14} className="text-primary" />
+            自定义 API Keys (BYOK)
+          </CardTitle>
+          {saved && <Badge variant="success" className="text-[9px] px-1.5 py-0 h-5 animate-pulse">✓ saved</Badge>}
+        </div>
+        <CardDescription className="text-[10px] font-mono">
+          将使用您配置的 API Key 覆盖系统的默认设置。留空使用系统默认。存储在此本机的 PostgreSQL 数据库中。
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <p className="text-[10px] font-mono text-muted-foreground">加载中...</p>
+        ) : (
+          <div className="space-y-3">
+            {providers.map(p => (
+              <div key={p} className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-mono text-muted-foreground">{p.replace('_API_KEY', '')}</label>
+                <input
+                  type="password"
+                  value={keys[p] || ''}
+                  onChange={e => handleChange(p, e.target.value)}
+                  placeholder={`未配置 ${p}`}
+                  className="w-full bg-secondary border border-border rounded-md px-3 py-1.5 text-xs font-mono focus:border-primary/50 outline-none transition-colors"
+                />
+              </div>
+            ))}
+            <div className="pt-2">
+              <Button onClick={handleSave} disabled={saving} size="sm" className="font-mono text-xs bg-primary/20 text-primary hover:bg-primary/30 border border-primary/50">
+                {saving ? '保存中...' : '保存 API Keys'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function SettingsPage() {
   const { user } = useAuth()
   const t = useTranslations('settings')
@@ -507,9 +491,6 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <span className="text-muted-foreground w-16">{t('email')}</span>
                 <span className="text-foreground">{user?.email ?? '—'}</span>
-                {user && !user.emailVerified && (
-                  <Badge variant="warning" className="text-[9px] px-1.5 py-0 h-4">{t('unverified')}</Badge>
-                )}
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-muted-foreground w-16">{t('username')}</span>
@@ -518,12 +499,15 @@ export default function SettingsPage() {
               <div className="flex items-center gap-3">
                 <span className="text-muted-foreground w-16">{t('level')}</span>
                 <Badge variant="cyber" className="text-[9px] px-1.5 py-0 h-4">
-                  {user?.tierLevel === 0 ? tTier('free') : user?.tierLevel === 1 ? tTier('vip') : user?.tierLevel === 2 ? tTier('enterprise') : user?.tierLevel && user.tierLevel >= 9 ? tTier('admin') : '—'}
+                  {user?.tierLevel && user.tierLevel >= 9 ? tTier('admin') : tTier('free')}
                 </Badge>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* API Keys BYOK */}
+        <ApiKeysSettingsSection />
 
         {/* AI 回复风格 */}
         <StyleSettingsSection />
@@ -536,9 +520,6 @@ export default function SettingsPage() {
 
         {/* 通知偏好 */}
         <NotificationSettingsSection />
-
-        {/* 修改密码 */}
-        <ChangePasswordSection />
 
         {/* 数据导出 */}
         <DataExportSection />

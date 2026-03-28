@@ -1,25 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken } from '@dreamhelp/auth'
 import { prisma } from '@dreamhelp/database'
+import { getLocalUserId } from '@/lib/local-user'
 import crypto from 'crypto'
 import { brainCoreFetch } from '@/lib/brain-core-url'
 
 // GET /api/knowledge — 列出当前用户的知识库文档
 export async function GET(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
-    const userId = payload.sub
+    const userId = getLocalUserId()
     const { searchParams } = new URL(req.url)
     const q = searchParams.get('q') || ''
 
@@ -64,19 +52,7 @@ export async function GET(req: NextRequest) {
 // POST /api/knowledge — 上传文档 (text/markdown 纯文本)
 export async function POST(req: NextRequest) {
   try {
-    const tokenStr = req.cookies.get('token')?.value
-    if (!tokenStr) {
-      return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
-    }
-
-    let payload: { sub: string }
-    try {
-      payload = await verifyToken(tokenStr)
-    } catch {
-      return NextResponse.json({ success: false, error: 'Token 无效' }, { status: 401 })
-    }
-
-    const userId = payload.sub
+    const userId = getLocalUserId()
     const body = await req.json()
     const { title, content, type } = body as { title?: string; content?: string; type?: string }
 
