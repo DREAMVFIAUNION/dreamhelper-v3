@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Version 4.0.0 — DREAMVFIA Fusion 2.0 & Skill Tree Re-architecture (Planned)
+
+- **详见详细蓝图:** [`docs/ROADMAP_v4.0.md`](./docs/ROADMAP_v4.0.md) (2026-03-28 制定)
+- **双脑协作增强**: 动态权衡机制、胼胝体实时纠偏、多模态分工与小脑独立拦截机制。
+- **技能树重构**: MCP 协议原生态融合、动态语义检索召回 (RAG for Skills)、复合工作流封转。
+- **本地极客底座**: xterm 终端双向通信与自主错误修复、端到端加密零登录体验。
+
+---
+
+### Phase 13 — Engineering Stabilization + Brand Showcase Readiness
+
+- aligned CI with the real default branch (`master`) and added manual workflow dispatch
+- restored reliable local workspace install flow with automatic Prisma client generation
+- stabilized web portal API smoke tests and gateway Jest coverage
+- refreshed metadata and repo-facing documentation around the verified showcase path
+- documented the Python 3.12 baseline for `services/brain-core`
+- reduced `brain-core` CI gating to a stable smoke suite and added a service entrypoint smoke check
+- fixed Redis fallback cleanup in `brain-core` so smoke tests stay in in-memory mode when Redis is unavailable
+
 ## v3.7.0 (2026-03-04)
 
 ### 认证系统 + 数据库上线 (Auth & Database Go-Live)

@@ -1,360 +1,273 @@
 # DreamHelper
 
+## DREAMVFIA UNION
+
 ```text
-██████╗ ██████╗ ███████╗ █████╗ ███╗   ███╗██╗  ██╗███████╗██╗     ██████╗ ███████╗██████╗ 
-██╔══██╗██╔══██╗██╔════╝██╔══██╗████╗ ████║██║  ██║██╔════╝██║     ██╔══██╗██╔════╝██╔══██╗
-██║  ██║██████╔╝█████╗  ███████║██╔████╔██║███████║█████╗  ██║     ██████╔╝█████╗  ██████╔╝
-██║  ██║██╔══██╗██╔══╝  ██╔══██║██║╚██╔╝██║██╔══██║██╔══╝  ██║     ██╔═══╝ ██╔══╝  ██╔══██╗
-██████╔╝██║  ██║███████╗██║  ██║██║ ╚═╝ ██║██║  ██║███████╗███████╗██║     ███████╗██║  ██║
-╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═╝
-                                                                                           
+ ____                              _   _      _                 
+|  _ \ _ __ ___  __ _ _ __ ___    | | | | ___| |_ __   ___ _ __ 
+| | | | '__/ _ \/ _` | '_ ` _ \   | |_| |/ _ \ | '_ \ / _ \ '__|
+| |_| | | |  __/ (_| | | | | | |  |  _  |  __/ | |_) |  __/ |   
+|____/|_|  \___|\__,_|_| |_| |_|  |_| |_|\___|_| .__/ \___|_|   
+                                                  |_|             
 ```
 
-<p align="center">
-  <strong>DREAMVFIA AI Assistant | Cyberpunk Theme | 100+ Skills | 5 Agents | Local GPU Accelerated</strong>
-</p>
 
-<p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=600&size=28&pause=1000&color=00FF00&center=true&vCenter=true&width=760&lines=DreamHelper;DREAMVFIA+AI+Assistant;v3.7.0+Enterprise+Edition;100%2B+Skills+%7C+5+Agents+%7C+Local+GPU+Power" alt="Typing SVG" />
-</p>
+> Brand showcase and engineering baseline for the **DreamHelper** workspace inside the **DREAMVFIA UNION** ecosystem.
 
-<p align="center">
-  <a href="https://github.com/DREAMVFIAUNION/dreamhelper-v3">
-    <img src="https://img.shields.io/github/stars/DREAMVFIAUNION/dreamhelper-v3?style=flat&color=00ff00" alt="stars">
-  </a>
-  <a href="https://github.com/DREAMVFIAUNION/dreamhelper-v3">
-    <img src="https://img.shields.io/github/forks/DREAMVFIAUNION/dreamhelper-v3?style=flat&color=00ff00" alt="forks">
-  </a>
-  <a href="https://github.com/DREAMVFIAUNION/dreamhelper-v3/releases">
-    <img src="https://img.shields.io/github/v/release/DREAMVFIAUNION/dreamhelper-v3?color=00ff00&label=Version" alt="release">
-  </a>
-  <img src="https://img.shields.io/badge/License-PROPRIETARY-00ff00" alt="license">
-  <img src="https://img.shields.io/badge/Docker-7+Containers-00ff00" alt="docker">
-  <img src="https://img.shields.io/badge/Python-3.12+-00ff00" alt="python">
-  <img src="https://img.shields.io/badge/Next.js-15-00ff00" alt="nextjs">
-</p>
-
-<p align="center">
-  <a href="#quick-start"><strong>Quick Start</strong></a> |
-  <a href="#system-architecture"><strong>Architecture</strong></a> |
-  <a href="#api-endpoints"><strong>API</strong></a> |
-  <a href="#skills-overview"><strong>Skills</strong></a>
-</p>
+![Stars](https://img.shields.io/github/stars/DREAMVFIAUNION/dreamhelper-v3?style=flat&color=00ff88)
+![Forks](https://img.shields.io/github/forks/DREAMVFIAUNION/dreamhelper-v3?style=flat&color=00ff88)
+![Release](https://img.shields.io/github/v/release/DREAMVFIAUNION/dreamhelper-v3?color=00ff88&label=release)
+![Node](https://img.shields.io/badge/node-20.x-00ff88)
+![pnpm](https://img.shields.io/badge/pnpm-9.x-00ff88)
+![Python](https://img.shields.io/badge/python-3.12-00ff88)
 
 ---
 
-## Overview
+## What this repo is
 
-DREAMVFIA is an enterprise-grade AI assistant platform built around a **Next.js frontend**, **NestJS gateway**, and **Python FastAPI brain core**. It combines conversational AI, multimodal processing, knowledge retrieval, workflow execution, and a large built-in skill ecosystem into one deployable system.
+DreamHelper is a monorepo for an enterprise-style AI workspace:
 
-### Highlights at a glance
+- **Next.js 15 / React 19 web portal**
+- **NestJS gateway** for health, channels, websocket, and orchestration edges
+- **FastAPI brain-core** for agents, skills, memory, workflows, RAG, and multimodal services
+- Supporting packages for **auth**, **database**, **design system**, **logger**, **storage**, and **TypeScript SDK**
 
-| Area | What you get |
-|------|---------------|
-| Multi-agent runtime | ReAct, Code, Writing, Analysis, and PlanExecute agents |
-| Skill ecosystem | 100+ built-in skills across daily, office, coding, document, image, audio, and video workflows |
-| AI capabilities | RAG knowledge base, tool calling, multimodal understanding, workflow automation |
-| Infra | PostgreSQL, Redis, Milvus, Elasticsearch, MinIO, WebSocket, local GPU support |
-| Product UX | Cyberpunk-themed UI, realtime chat, session persistence, admin features |
+This repository is currently positioned as a **DREAMVFIA brand showcase + runnable technical base**, not as a community-first open source product.
 
 ---
 
-## Demo Videos
+## Current stable showcase path
 
-| Demo | Preview |
-|------|---------|
-| YouTube Shorts Demo | <a href="https://youtube.com/shorts/sBnOLkFhz-I?si=4K-JQQNdQtD3DQ2Z"><img src="https://img.youtube.com/vi/sBnOLkFhz-I/0.jpg" width="280" alt="YouTube Shorts Demo" /></a> |
-| YouTube Full Demo | <a href="https://www.youtube.com/watch?v=Yct5YYgZeJU&t=277s"><img src="https://img.youtube.com/vi/Yct5YYgZeJU/0.jpg" width="280" alt="YouTube Full Demo" /></a> |
+If you want the fastest credible demo path, use this order:
 
----
-
-## Key Features
-
-- **5 specialized agents** for reasoning, coding, writing, analysis, and planning workflows
-- **100+ built-in skills** covering productivity, coding, documents, media, and automation
-- **Local GPU acceleration** for high-performance AI inference and multimodal workloads
-- **RAG knowledge system** backed by Milvus + Elasticsearch for semantic and keyword retrieval
-- **Multimodal capabilities** including STT, TTS, document parsing, and vision processing
-- **Realtime architecture** with WebSocket support and persistent chat sessions
-- **Enterprise-oriented stack** with gateway, auth, caching, storage, and structured service boundaries
-- **Cyberpunk product experience** with animated UI and dark-mode-first styling
-
-### Agent System
-
-| Agent | Capability | Use Case |
-|-------|------------|----------|
-| ReAct | Tool calling + reasoning | Multi-step task execution |
-| Code | Code generation / execution | Software development |
-| Writing | Structured content creation | Content generation |
-| Analysis | Data analysis and insights | Business intelligence |
-| PlanExecute | Planning and execution loops | Complex task orchestration |
-
-### Product Experience
-
-<p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=14&pause=500&color=00FF00&background=0D1117&lines=Neon+Glow+Effects;Dark+Mode+First;Animated+Components;Cyberpunk+Visual+Language" alt="product experience">
-</p>
+1. **Landing page** → `/`
+2. **Login / Register** → `/login` / `/register`
+3. **Core chat workspace** → `/chat`
+4. **Representative dashboard surface** → `/overview` or `/workflows`
+5. **Admin surface** → `/admin/login` then `/admin`
 
 ---
 
-<a id="system-architecture"></a>
+## Capability status
 
-## System Architecture
+### Ready for brand showcase
 
-```mermaid
-flowchart TD
-    A[Next.js 15 Frontend
-React 19 + TailwindCSS]
-    B[NestJS Gateway
-Fastify + WebSocket]
-    C[Brain Core
-FastAPI + Python]
-    D[PostgreSQL
-Prisma ORM]
-    E[Redis
-Cache + Pub/Sub]
-    F[Milvus
-Vector Search]
-    G[Elasticsearch
-Full-text Search]
-    H[MinIO
-Object Storage]
-    I[Local GPU
-Model Compute]
+- Landing site and product-facing pages
+- Auth route surface in the web portal
+- Chat, knowledge, workflow, dashboard, and admin UI surfaces
+- Gateway build + unit tests
+- Web portal build + API smoke tests
 
-    A --> B
-    B --> C
-    B --> D
-    B --> E
-    C --> F
-    C --> G
-    C --> H
-    C --> I
-```
+### Available but infra-dependent
 
-### Architecture layers
+- PostgreSQL-backed auth and persistence
+- Redis, Milvus, Elasticsearch, and MinIO integrations
+- brain-core agent, memory, workflow, and RAG modules
+- Docker-based full stack startup
 
-| Layer | Responsibility |
-|-------|----------------|
-| Frontend | Chat UI, product surfaces, interaction flows, cyberpunk-themed experience |
-| Gateway | Auth, transport, WebSocket communication, channel access, API orchestration |
-| Brain Core | Agent runtime, tools, workflows, multimodal processing, RAG, memory |
-| Data & Infra | PostgreSQL, Redis, Milvus, Elasticsearch, MinIO, GPU execution |
+### Not the default demo path
+
+- Experimental / deeper AI surfaces such as consciousness, dual-brain, and broader multimodal stacks
+- Any flow that depends on a fully provisioned local AI/data environment before the base app is stable
 
 ---
 
-## Tech Stack
+## Engineering baseline
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 15, React 19, TailwindCSS, Framer Motion |
-| Gateway | NestJS 10, Fastify, WebSocket |
-| AI Core | Python 3.12, FastAPI, Pydantic |
-| Database | PostgreSQL 17, Prisma ORM, Redis 8 |
-| Search | Milvus 2.4, Elasticsearch 8 |
-| Deploy | Docker Compose (7 Containers) |
-| Testing | Vitest, Pytest, Playwright |
+Use these versions if you want reproducible local results:
 
----
+- **Node.js 20.x**
+- **pnpm 9.x**
+- **Python 3.12** for `services/brain-core`
+- **Docker Desktop / Docker Compose**
 
-<a id="skills-overview"></a>
+Repo helpers:
 
-## 100+ Skills Overview
-
-| Category | Count | Example Skills |
-|----------|-------|----------------|
-| Daily | 15 | `calculator`, `unit_converter`, `password_generator`, `bmi_calculator` |
-| Office | 15 | `todo_manager`, `pomodoro_timer`, `csv_analyzer`, `invoice_generator` |
-| Coding | 15 | `base64_codec`, `url_codec`, `jwt_decoder`, `sql_formatter`, `code_formatter` |
-| Document | 13 | `markdown_processor`, `text_statistics`, `text_summarizer`, `word_counter` |
-| Entertainment | 12 | `fortune_teller`, `name_generator`, `ascii_art`, `sudoku_solver` |
-| Image | 12 | `image_resize`, `image_watermark`, `image_filter`, `image_collage` |
-| Audio | 10 | `audio_convert`, `audio_trim`, `audio_merge`, `audio_volume` |
-| Video | 8 | `video_thumbnail`, `video_trim`, `video_merge`, `video_to_gif` |
-
-> The skill system is designed to auto-route user requests to the right tool chain for practical everyday and professional workflows.
+- `/.nvmrc`
+- `/.node-version`
+- `/services/brain-core/.python-version`
 
 ---
 
-<a id="quick-start"></a>
+## Quick start
 
-## Quick Start
-
-### Prerequisites
-
-```bash
-Node.js >= 20
-pnpm >= 9
-Python >= 3.12
-Docker + Docker Compose
-```
-
-### 1. Clone Project
+### 1) Clone
 
 ```bash
 git clone https://github.com/DREAMVFIAUNION/dreamhelper-v3.git
 cd dreamhelper-v3
 ```
 
-### 2. Install Dependencies
+### 2) Install workspace dependencies
 
 ```bash
-# Frontend dependencies
-pnpm install
-
-# AI Core dependencies
-cd services/brain-core
-pip install -r requirements.txt
+pnpm install --shamefully-hoist
 ```
 
-### 3. Configure Environment
+> The install flow now regenerates Prisma Client automatically via `postinstall`.
+
+### 3) Configure environment
 
 ```bash
 cp .env.example .env
-# Edit .env with your config
 ```
 
-### 4. Start Docker Services
+At minimum, set the URLs / secrets you need for your local scenario.
+
+### 4) Start infrastructure
 
 ```bash
-docker compose up -d postgres redis milvus es minio
+docker compose up -d postgres redis milvus elasticsearch minio
 ```
 
-### 5. Initialize Database
+### 5) Database setup
 
 ```bash
 pnpm db:migrate
 pnpm db:seed
 ```
 
-### 6. Start Development
+### 6) Run the main app surfaces
+
+#### Web portal
 
 ```bash
-# Frontend (http://localhost:3000)
-pnpm --filter web-portal dev
+pnpm --filter @dreamhelp/web-portal dev
+```
 
-# AI Core (http://localhost:8000)
+#### Gateway
+
+```bash
+pnpm --filter @dreamhelp/gateway dev
+```
+
+#### brain-core
+
+See [`services/brain-core/README.md`](services/brain-core/README.md) for the Python 3.12 setup flow.
+
+---
+
+## Validation commands
+
+### Web portal
+
+```bash
+pnpm --filter @dreamhelp/web-portal test
+pnpm --filter @dreamhelp/web-portal build
+```
+
+### Gateway
+
+```bash
+pnpm --filter @dreamhelp/gateway test
+pnpm --filter @dreamhelp/gateway build
+```
+
+### brain-core stable smoke suite
+
+```bash
 cd services/brain-core
-uvicorn src.main:app --reload --port 8000
-
-# Gateway (Optional) (http://localhost:3001)
-pnpm --filter gateway dev
+python -m pytest tests/test_smoke.py tests/test_service_entrypoint.py -q
 ```
 
-### 7. One-Click Start (Docker)
+### brain-core extended suite
 
 ```bash
-docker compose up -d
-# Visit http://localhost:3000
+cd services/brain-core
+python -m pytest tests -q
 ```
 
----
-
-<a id="api-endpoints"></a>
-
-## API Endpoints
-
-| Module | Endpoint | Purpose |
-|--------|----------|---------|
-| Auth | `POST /api/auth/login` | User login |
-| Auth | `POST /api/auth/register` | User registration |
-| Auth | `POST /api/auth/logout` | User logout |
-| Auth | `PUT /api/auth/password` | Change password |
-| Chat | `POST /api/chat/completion` | AI chat completion |
-| Chat | `GET/POST /api/chat/session` | Session management |
-| Knowledge | `POST /api/knowledge/upload` | Upload documents |
-| Knowledge | `GET /api/knowledge/list` | List knowledge items |
-| Multimodal | `POST /api/multimodal/stt` | Speech to text |
-| Multimodal | `POST /api/multimodal/tts` | Text to speech |
-
----
-
-## Feature Demos
-
-### AI Chat
-
-```python
-# User Input
-user: "Write a poem about starlight"
-
-# AI Response
-Stars twinkle in the deep night sky,
-Milky Way reflects a dreamy eye.
-Vast universe so endless and bright,
-Gazing up, my thoughts take flight.
-```
-
-### Image Processing
+Or from the repo root:
 
 ```bash
-# User: "Add watermark to this image"
-# Auto calls image_watermark skill
-# Returns processed image
-```
-
-### Data Analysis
-
-```bash
-# User: "Analyze this sales data"
-# AI auto calls csv_analyzer
-# Returns visualization report
+pnpm verify:web
+pnpm verify:gateway
+pnpm verify:brain
 ```
 
 ---
 
-## Connect With Us
+## Architecture
 
-<p align="center">
-  <a href="https://github.com/DREAMVFIAUNION">
-    <img src="https://img.shields.io/badge/GitHub-DREAMVFIAUNION-00ff00?style=for-the-badge&logo=github" alt="github">
-  </a>
-</p>
+```mermaid
+flowchart LR
+    A["Web Portal<br/>Next.js 15 + React 19"]
+    B["Gateway<br/>NestJS + Fastify + WebSocket"]
+    C["brain-core<br/>FastAPI + Python"]
+    D["PostgreSQL<br/>Prisma"]
+    E["Redis"]
+    F["Milvus"]
+    G["Elasticsearch"]
+    H["MinIO"]
 
----
-
-## Project Stats
-
-<p align="center">
-
-![GitHub Stars](https://img.shields.io/github/stars/DREAMVFIAUNION/dreamhelper-v3)
-![GitHub Forks](https://img.shields.io/github/forks/DREAMVFIAUNION/dreamhelper-v3)
-![Contributors](https://img.shields.io/github/contributors/DREAMVFIAUNION/dreamhelper-v3)
-![Last Commit](https://img.shields.io/github/last-commit/DREAMVFIAUNION/dreamhelper-v3)
-
-</p>
-
----
-
-## Contributing
-
-Welcome to submit Issues and Pull Requests.
-
-```bash
-# 1. Fork the project
-# 2. Create feature branch
-git checkout -b feature/AmazingFeature
-# 3. Commit changes
-git commit -m 'Add some AmazingFeature'
-# 4. Push branch
-git push origin feature/AmazingFeature
-# 5. Open Pull Request
+    A --> B
+    A --> C
+    B --> D
+    B --> E
+    C --> D
+    C --> E
+    C --> F
+    C --> G
+    C --> H
 ```
+
+---
+
+## Roadmap
+
+- See [`docs/ROADMAP_v4.0.md`](docs/ROADMAP_v4.0.md) for the planned v4.0 upgrade path, which focuses on **DREAMVFIA Fusion 2.0** (advanced dual-brain and cerebellar mechanism) and **Skill Tree Optimization** (dynamic semantic retrieval and MCP).
+
+---
+
+## Verified repository surfaces
+
+### Web routes and APIs
+
+- `GET /api/health`
+- `POST /api/auth/login`
+- `POST /api/auth/register`
+- `GET /api/auth/me`
+- `POST /api/chat/completions`
+- `GET /api/chat/models`
+- `GET /api/skills`
+- Dashboard / admin / workflow pages under the App Router
+
+### Gateway
+
+- `GET /api/v1/health`
+- Channel service adapter registration and routing tests
+
+### brain-core
+
+- Main service entry at `services/brain-core/src/main.py`
+- Large module surface for agents, chat, tools, memory, workflows, RAG, multimodal, and MCP
+
+---
+
+## Demo links
+
+- [YouTube Shorts demo](https://youtube.com/shorts/sBnOLkFhz-I?si=4K-JQQNdQtD3DQ2Z)
+- [YouTube full demo](https://www.youtube.com/watch?v=Yct5YYgZeJU&t=277s)
+
+---
+
+## Known limits
+
+- `brain-core` local setup is **Python 3.12-only** for now; Python 3.14 is not part of the supported baseline
+- Full-stack AI features depend on infra + API keys; they are not all part of the default showcase path
+- The repo is optimized first for **stable demonstration and brand presentation**, then for deeper capability expansion
+
+---
+
+## Project links
+
+- GitHub org: [DREAMVFIAUNION](https://github.com/DREAMVFIAUNION)
+- Repository: [dreamhelper-v3](https://github.com/DREAMVFIAUNION/dreamhelper-v3)
+- Releases: [GitHub Releases](https://github.com/DREAMVFIAUNION/dreamhelper-v3/releases)
+- Discussions: [GitHub Discussions](https://github.com/DREAMVFIAUNION/dreamhelper-v3/discussions)
 
 ---
 
 ## License
 
-```text
-Copyright (c) 2026 DREAMVFIA UNION
-All Rights Reserved
-```
-
----
-
-<p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&size=12&pause=1000&color=00FF00&center=true&vCenter=true&width=420&lines=Made+by+DREAMVFIA+UNION;Building+the+Future+of+AI+Assistants" alt="footer">
-</p>
-
-<p align="center">
-  <sub>Copyright 2026 DREAMVFIA UNION | Built for the future of AI assistants</sub>
-</p>
+This repository is currently managed as a **proprietary DREAMVFIA UNION project**.
