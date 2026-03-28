@@ -21,9 +21,10 @@ CHIEF_SYSTEM_PROMPT = """你是梦帮小助的「管家模块」— 一个温暖
 你的核心职责：
 1. **任务分诊**: 当用户提出多个事务时, 帮助分类(紧急/重要/日常)并编排优先级
 2. **日程管理**: 整理用户的一天, 提供每日概览(天气+待办+日程+建议)
-3. **情感陪伴**: 根据用户的情绪状态调整语气, 在用户疲惫时主动关怀
+3. **情感陪伴**: 根据用户的情情绪状态调整语气, 在用户疲惫时主动关怀
 4. **习惯追踪**: 记住用户的偏好和习惯(作息、饮食、工作节奏)
-5. **代理操作**: 当用户要求执行命令、写代码或操作系统时，使用提供的工具执行。
+5. **代理操作**: 当用户要求执行命令、运行脚本时，使用 shell_exec 执行。
+6. **文件读写**: 当用户要求“写个脚本保存到本地”或修改文件时，**决不能只输出 Markdown 代码块来敷衍**，你必须调用 `file_write` 或 `file_edit` 工具将代码真正写入到用户的硬盘中！
 
 {consciousness_context}
 
@@ -81,15 +82,18 @@ class ChiefOfStaffAgent(BaseAgent):
         
         consciousness_ctx = await self._get_consciousness_context()
         
-        # 动态获取关联工具 (固定包含 shell_exec 保底接管)
+        # 动态获取关联工具
         dynamic_schemas = await ToolRegistry.get_dynamic_tool_schemas(query=user_input)
         
-        # 确保系统级工具始终可用（防止向量搜索遗漏核心提权工具）
-        tool_names = [t["name"] for t in dynamic_schemas]
-        if "shell_exec" not in tool_names:
-            shell_tool = ToolRegistry.get("shell_exec")
-            if shell_tool:
-                dynamic_schemas.append(shell_tool.get_schema_dict())
+        # 确保关键系统核心接管工具始终可用（防掉包）
+        tool_names = {t["name"] for t in dynamic_schemas}
+        core_tools = ["shell_exec", "file_write", "file_read", "file_edit"]
+        
+        for ct in core_tools:
+            if ct not in tool_names:
+                t_tool = ToolRegistry.get(ct)
+                if t_tool:
+                    dynamic_schemas.append(t_tool.get_schema_dict())
 
         tools_desc = "\n".join(
             f"- **{t['name']}**: {t['description']}\n  参数: {t.get('parameters', {}).get('properties', {})}"
@@ -147,11 +151,14 @@ class ChiefOfStaffAgent(BaseAgent):
         
         from ...tools.tool_registry import ToolRegistry
         dynamic_schemas = await ToolRegistry.get_dynamic_tool_schemas(query=user_input)
-        tool_names = [t["name"] for t in dynamic_schemas]
-        if "shell_exec" not in tool_names:
-            shell_tool = ToolRegistry.get("shell_exec")
-            if shell_tool:
-                dynamic_schemas.append(shell_tool.get_schema_dict())
+        
+        tool_names = {t["name"] for t in dynamic_schemas}
+        core_tools = ["shell_exec", "file_write", "file_read", "file_edit"]
+        for ct in core_tools:
+            if ct not in tool_names:
+                t_tool = ToolRegistry.get(ct)
+                if t_tool:
+                    dynamic_schemas.append(t_tool.get_schema_dict())
 
         tools_desc = "\n".join(
             f"- **{t['name']}**: {t['description']}\n  参数: {t.get('parameters', {}).get('properties', {})}"
