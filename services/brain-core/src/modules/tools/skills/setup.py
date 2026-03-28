@@ -137,10 +137,14 @@ from .video.video_extract_audio import VideoExtractAudioSkill
 from .video.video_resize import VideoResizeSkill
 from .video.video_rotate import VideoRotateSkill
 
+# 系统类
+from .system.shell_exec import ShellExecSkill
 
 def register_all_skills():
-    """注册所有技能 — 共 100 个 (8大分类)"""
+    """注册所有技能 — 共 101 个"""
     skills = [
+        # 系统类 (特权执行)
+        ShellExecSkill(),
         # 日常类 15个
         CalculatorSkill(),
         UnitConverterSkill(),
